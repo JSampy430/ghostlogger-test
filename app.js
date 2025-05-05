@@ -15,17 +15,24 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 // ✅ Start timer when page loads
 let sessionStart = Date.now();
 
-// ✅ Log session duration & page views on unload
-window.addEventListener("unload", () => {
-  const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-  const pagesViewed = 1;
+// ✅ Log session duration & page views when page becomes hidden
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
+    const pagesViewed = 1;
 
-  const payload = {
-    timestamp: new Date().toISOString(),
-    session_duration: sessionDuration,
-    pages_viewed: pagesViewed
-  };
+    const payload = {
+      timestamp: new Date().toISOString(),
+      session_duration: sessionDuration,
+      pages_viewed: pagesViewed
+    };
 
-  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    console.log("📦 Sending payload:", payload);  // Debug log
+
+    const blob = new Blob([JSON.stringify(payload)], {
+      type: "application/json"
+    });
+
+    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+  }
 });
