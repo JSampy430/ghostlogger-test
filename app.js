@@ -13,20 +13,18 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 .catch(err => console.error("❌ Logging error (load):", err));
 
 // 2. Track session time and log on unload
-window.addEventListener("beforeunload", () => {
+let sessionStart = Date.now();
+
+window.addEventListener("unload", () => {
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
   const pagesViewed = 1;
 
-  const payload = JSON.stringify({
+  const payload = {
     timestamp: new Date().toISOString(),
     session_duration: sessionDuration,
     pages_viewed: pagesViewed
-  });
+  };
 
-  const blob = new Blob([payload], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-console.log("🔥 Logging with duration + pages...");
-console.log("👋 app.js is running!");
-  
-  
 });
