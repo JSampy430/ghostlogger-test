@@ -1,7 +1,4 @@
-// Track session start time
-let sessionStart = Date.now();
-
-// 1. Log initial page visit
+// ✅ Log load immediately
 fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
   headers: {
@@ -11,24 +8,26 @@ fetch("https://ghostloggerv2.onrender.com/log", {
     timestamp: new Date().toISOString()
   })
 })
-.then(res => res.json())
-.then(data => console.log("✅ Load Logged:", data))
-.catch(err => console.error("❌ Load Logging error:", err));
+  .then(res => res.json())
+  .then(data => console.log("✅ Load Logged:", data))
+  .catch(err => console.error("❌ Logging error (load):", err));
 
-// 2. Log session duration when tab closes or user leaves
-window.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-    const pagesViewed = 1;
+// ✅ Start timer when page loads
+let sessionStart = Date.now();
 
-    const payload = {
-      timestamp: new Date().toISOString(),
-      session_duration: sessionDuration,
-      pages_viewed: pagesViewed
-    };
+// ✅ Log session duration & page views when page closes
+window.addEventListener("beforeunload", () => {
+  const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
+  const pagesViewed = 1;
 
-    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-    console.log("📤 Sent duration + pages via Beacon:", payload);
-  }
+  const payload = JSON.stringify({
+    timestamp: new Date().toISOString(),
+    session_duration: sessionDuration,
+    pages_viewed: pagesViewed
+  });
+
+  const blob = new Blob([payload], { type: "application/json" });
+  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+
+  console.log("📦 Session logged with duration + pages...");
 });
