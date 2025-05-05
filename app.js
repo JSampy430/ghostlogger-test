@@ -1,3 +1,11 @@
+fetch("https://ghostloggerv2.onrender.com/log", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ test: true })
+})
+.then(res => res.json())
+.then(data => console.log("✅ TEST Logged:", data))
+.catch(err => console.error("❌ TEST Error:", err));
 // ✅ Start session timer
 console.log("✅ app.js loaded!");
 document.body.style.background = "#eef";
