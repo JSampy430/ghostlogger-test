@@ -1,4 +1,7 @@
 // ✅ Start session time
+console.log("✅ app.js loaded!");
+document.body.style.background = "#eef";
+
 let sessionStart = Date.now();
 console.log("🕒 Session started at:", new Date(sessionStart).toISOString());
 
