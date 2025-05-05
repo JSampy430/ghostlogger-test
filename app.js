@@ -26,5 +26,7 @@ window.addEventListener("beforeunload", () => {
   const blob = new Blob([payload], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 console.log("🔥 Logging with duration + pages...");
+console.log("👋 app.js is running!");
+  
   
 });
