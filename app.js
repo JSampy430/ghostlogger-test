@@ -15,16 +15,21 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 // 2. Track session time and log on unload
 let sessionStart = Date.now();
 
-window.addEventListener("unload", () => {
-  const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-  const pagesViewed = 1;
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
+    const pagesViewed = 1; // You can increment this based on your logic later
 
-  const payload = {
-    timestamp: new Date().toISOString(),
-    session_duration: sessionDuration,
-    pages_viewed: pagesViewed
-  };
+    const payload = {
+      timestamp: new Date().toISOString(),
+      session_duration: sessionDuration,
+      pages_viewed: pagesViewed
+    };
 
-  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    console.log("📤 Logging with duration + pages...");
+  }
 });
+
+console.log("🟢 app.js is running!");
