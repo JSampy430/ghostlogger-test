@@ -42,9 +42,12 @@ function sendSessionData() {
   console.log("📤 Beacon sent success:", success);
 }
 
-// ✅ Trigger when user hides or leaves tab
+// ✅ When tab is hidden (user switches tab)
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     sendSessionData();
   }
 });
+
+// ✅ When tab is about to be closed or refreshed
+window.addEventListener("beforeunload", sendSessionData);
