@@ -1,4 +1,4 @@
-// ✅ Immediately log on load
+// ✅ Log load immediately
 fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
   headers: {
@@ -10,26 +10,22 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 })
   .then(res => res.json())
   .then(data => console.log("✅ Load Logged:", data))
-  .catch(err => console.error("❌ Load Logging Error:", err));
+  .catch(err => console.error("❌ Logging error (load):", err));
 
-// ✅ Track time from page load
+// ✅ Start timer when page loads
 let sessionStart = Date.now();
 
-// ✅ Log on unload or tab close
-window.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-    const pagesViewed = 1;
+// ✅ Log session duration & page views on unload
+window.addEventListener("unload", () => {
+  const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
+  const pagesViewed = 1;
 
-    const payload = JSON.stringify({
-      timestamp: new Date().toISOString(),
-      session_duration: sessionDuration,
-      pages_viewed: pagesViewed
-    });
+  const payload = {
+    timestamp: new Date().toISOString(),
+    session_duration: sessionDuration,
+    pages_viewed: pagesViewed
+  };
 
-    const blob = new Blob([payload], { type: "application/json" });
-    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-
-    console.log("📦 Unload Logged w/ duration:", sessionDuration);
-  }
+  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 });
