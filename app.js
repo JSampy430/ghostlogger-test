@@ -14,6 +14,7 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 
 // ✅ Start timer when page loads
 let sessionStart = Date.now();
+console.log("🕒 Session started at:", new Date(sessionStart).toISOString());
 
 // ✅ Log session duration & page views when page becomes hidden
 window.addEventListener("visibilitychange", () => {
@@ -27,12 +28,16 @@ window.addEventListener("visibilitychange", () => {
       pages_viewed: pagesViewed
     };
 
-    console.log("📦 Sending payload:", payload);  // Debug log
+    console.log("📤 About to send this payload via Beacon:");
+    console.log("🕒 Duration:", sessionDuration, "seconds");
+    console.log("📄 Pages viewed:", pagesViewed);
+    console.log("📦 Payload:", payload);
 
     const blob = new Blob([JSON.stringify(payload)], {
       type: "application/json"
     });
 
-    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    console.log("📬 Beacon send success:", success);
   }
 });
