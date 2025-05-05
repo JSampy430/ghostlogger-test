@@ -1,3 +1,15 @@
+etch("https://ghostloggerv2.onrender.com/log", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    timestamp: new Date().toISOString()
+  })
+})
+.then(res => res.json())
+.then(data => console.log("✅ Initial fetch log:", data))
+.catch(err => console.error("❌ Fetch error:", err));
 console.log("✅ app.js loaded!");
 document.body.style.background = "#eef";
 
