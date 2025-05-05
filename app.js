@@ -1,4 +1,4 @@
-etch("https://ghostloggerv2.onrender.com/log", {
+fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
