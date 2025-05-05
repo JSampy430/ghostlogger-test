@@ -1,4 +1,7 @@
-// 1. Log immediately on page load
+// Track session start time
+let sessionStart = Date.now();
+
+// 1. Log initial page visit
 fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
   headers: {
@@ -10,16 +13,13 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 })
 .then(res => res.json())
 .then(data => console.log("✅ Load Logged:", data))
-.catch(err => console.error("❌ Logging error (load):", err));
+.catch(err => console.error("❌ Load Logging error:", err));
 
-// 2. Start session timer
-let sessionStart = Date.now();
-
-// 3. Log session duration & pages viewed when tab is hidden or closed
-document.addEventListener("visibilitychange", () => {
+// 2. Log session duration when tab closes or user leaves
+window.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-    const pagesViewed = 1; // You can enhance this later if needed
+    const pagesViewed = 1;
 
     const payload = {
       timestamp: new Date().toISOString(),
@@ -29,6 +29,6 @@ document.addEventListener("visibilitychange", () => {
 
     const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
     navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-    console.log("📤 Logging on tab hide:", payload);
+    console.log("📤 Sent duration + pages via Beacon:", payload);
   }
 });
