@@ -60,4 +60,4 @@ document.addEventListener("visibilitychange", () => {
 // ✅ When tab is about to be closed or refreshed
 window.addEventListener("beforeunload", sendSessionData);
 // Log after 3 seconds even if user doesn’t hide tab
-setTimeout(sendSessionData, 3000);
+//setTimeout(sendSessionData, 3000);
