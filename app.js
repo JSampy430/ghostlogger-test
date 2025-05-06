@@ -1,5 +1,7 @@
 let sessionStart = Date.now();
 let hasSentLog = false;
+
+console.log("✅ app.js loaded!");
 // ✅ Initial log when page loads
 /*fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
