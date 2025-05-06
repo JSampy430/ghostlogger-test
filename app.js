@@ -1,8 +1,9 @@
+console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 // Track and increment pages viewed
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
-
+console.log("✅ Incrementing pagesViewed to:", pagesViewed);
 console.log("📄 Pages viewed this session:", pagesViewed);
 
 // Set or get session start time
