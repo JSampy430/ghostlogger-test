@@ -1,3 +1,6 @@
+// Warm-up ping to prevent cold start
+fetch("https://ghostloggerv2.onrender.com/ping").catch(() => {});
+
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 
 // Track and increment pages viewed
