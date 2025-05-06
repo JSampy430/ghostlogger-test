@@ -34,20 +34,26 @@ console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 
 // 🔁 First click capture (only once)
 document.addEventListener("click", () => {
-  if (sessionStorage.getItem("first_click_delay") === null) {
+  const existingDelay = sessionStorage.getItem("first_click_delay");
+  if (!existingDelay) {
     const delay = Date.now() - sessionStart;
     sessionStorage.setItem("first_click_delay", delay.toString());
     console.log("🖱️ First click delay:", delay + "ms");
   }
 });
-
 // 📤 Send session data
 function sendSessionData() {
   if (hasSentLog) return;
 
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
   const pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "1");
-  const first_click_delay = parseInt(sessionStorage.getItem("first_click_delay") || "-1");
+
+  let first_click_delay = sessionStorage.getItem("first_click_delay");
+  if (first_click_delay !== null && first_click_delay !== "") {
+    first_click_delay = parseInt(first_click_delay);
+  } else {
+    first_click_delay = -1;
+  }
 
   const payload = {
     timestamp: new Date().toISOString(),
