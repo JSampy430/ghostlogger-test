@@ -18,8 +18,16 @@ console.log("✅ app.js loaded!");
 document.body.style.background = "#eef";
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 */
+
+
+console.log("✅ app.js loaded!");
+console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
+
 // ✅ Function to send session duration when user leaves tab
 function sendSessionData() {
+    if (hasSentLog) return; // 🛑 already sent
+  hasSentLog = true;      // ✅ set flag
+  
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
   const pagesViewed = 1;
 
