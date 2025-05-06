@@ -1,4 +1,6 @@
-// ✅ Initialize or resume session
+
+
+// Set or get session start time
 let sessionStart = sessionStorage.getItem("sessionStart");
 if (!sessionStart) {
   sessionStart = Date.now();
@@ -7,17 +9,21 @@ if (!sessionStart) {
   sessionStart = parseInt(sessionStart);
 }
 
+if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+  sessionStorage.clear();
+}
+
+// Track if log has already been sent
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// Just for console testing
-console.log("✅ app.js loaded!");
+console.log("✅ app.js loaded");
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 
 function sendSessionData() {
   if (hasSentLog) return;
 
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-  const pagesViewed = 1; // You can make this dynamic later
+  const pagesViewed = 1;
 
   const payload = {
     timestamp: new Date().toISOString(),
@@ -38,9 +44,12 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// ✅ This event only fires when the tab is closed or user fully leaves
-window.addEventListener("pagehide", (e) => {
-  if (!e.persisted) {
-    sendSessionData();
-  }
-});
+// ✅ Only log from the first page that hasn’t sent yet
+if (!hasSentLog) {
+  window.addEventListener("pagehide", (e) => {
+    if (!e.persisted) {
+      sendSessionData();
+    }
+  });
+}
+
