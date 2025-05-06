@@ -1,4 +1,9 @@
+// Track and increment pages viewed
+let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
+pagesViewed += 1;
+sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
+console.log("📄 Pages viewed this session:", pagesViewed);
 
 // Set or get session start time
 let sessionStart = sessionStorage.getItem("sessionStart");
@@ -23,7 +28,7 @@ function sendSessionData() {
   if (hasSentLog) return;
 
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-  const pagesViewed = 1;
+  const pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "1");
 
   const payload = {
     timestamp: new Date().toISOString(),
