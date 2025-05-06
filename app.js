@@ -53,4 +53,25 @@ function sendSessionData() {
   });
 
   const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-  console.log("📤 Beacon
+  console.log("📤 Beacon sent success:", success);
+
+  sessionStorage.setItem("hasSentLog", "true");
+  hasSentLog = true;
+}
+
+document.addEventListener("click", () => {
+  if (firstClickDelay === null) {
+    const delay = Date.now() - sessionStart;
+    sessionStorage.setItem("firstClickDelay", delay.toString());
+    console.log("🖱️ First click delay:", delay + "ms");
+  }
+});
+
+// ✅ Only log from the first page that hasn’t sent yet
+if (!hasSentLog) {
+  window.addEventListener("pagehide", (e) => {
+    if (!e.persisted) {
+      sendSessionData();
+    }
+  });
+}
