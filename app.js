@@ -1,6 +1,6 @@
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 // Track and increment pages viewed
-let firstClickDelay = -1; // -1 = never clicked
+let firstClickDelay = null; // -1 = never clicked
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
@@ -37,7 +37,7 @@ function sendSessionData() {
     timestamp: new Date().toISOString(),
     session_duration: sessionDuration,
     pages_viewed: pagesViewed,
-    first_click_delay: firstClickDelay,
+    first_click_delay: sessionStorage.getItem("first_click_delay") || "",  // or null
   };
 
   console.log("📦 Sending payload:", payload);
@@ -54,13 +54,15 @@ function sendSessionData() {
 }
 
 document.addEventListener("click", () => {
-  if (firstClickDelay === -1) {
+  if (firstClickDelay === null) {
     firstClickDelay = Date.now() - sessionStart;
-    console.log("🖱️ First click delay:", firstClickDelay + "ms");
     sessionStorage.setItem("firstClickDelay", firstClickDelay.toString());
+    console.log("🖱️ First click delay:", firstClickDelay + "ms");
   }
 });
-
+if (document.referrer && !document.referrer.includes(window.location.hostname)) {
+  sessionStorage.clear();
+}
 // ✅ Only log from the first page that hasn’t sent yet
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
