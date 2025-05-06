@@ -7,6 +7,8 @@ let sessionStart = sessionStorage.getItem("sessionStart");
 if (!sessionStart) {
   sessionStart = Date.now();
   sessionStorage.setItem("sessionStart", sessionStart);
+} else {
+  sessionStart = parseInt(sessionStart); // 🔧 This line was likely missing!
 }
 
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
