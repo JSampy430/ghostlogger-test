@@ -1,34 +1,31 @@
-let sessionStart = Date.now();
-let hasSentLog = false;
+//let sessionStart = Date.now();
+//let hasSentLog = false;
+
+
+// ✅ Set or retrieve persistent session start time
+let sessionStart = sessionStorage.getItem("sessionStart");
+if (!sessionStart) {
+  sessionStart = Date.now();
+  sessionStorage.setItem("sessionStart", sessionStart);
+}
+
+let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
+pagesViewed += 1;
+sessionStorage.setItem("pagesViewed", pagesViewed);
+
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
+
+
 
 console.log("✅ app.js loaded!");
-// ✅ Initial log when page loads
-/*fetch("https://ghostloggerv2.onrender.com/log", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    timestamp: new Date().toISOString()
-  })
-})
-  .then(res => res.json())
-  .then(data => console.log("✅ Initial fetch log:", data))
-  .catch(err => console.error("❌ Fetch error:", err));
-
-console.log("✅ app.js loaded!");
-document.body.style.background = "#eef";
-console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
-*/
-
-
 console.log("✅ app.js loaded!");
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 
 // ✅ Function to send session duration when user leaves tab
 function sendSessionData() {
     if (hasSentLog) return; // 🛑 already sent
-  hasSentLog = true;      // ✅ set flag
+    hasSentLog = true;      // ✅ set flag
+    sessionStorage.setItem("hasSentLog", "true");
   
   const sessionStart = parseInt(sessionStorage.getItem("sessionStart") || Date.now());
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
@@ -59,15 +56,4 @@ window.addEventListener("pagehide", (e) => {
     sendSessionData();
   }
 });
-/*document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    sendSessionData();
-  }
-  */
 
-//});
-
-// ✅ When tab is about to be closed or refreshed
-
-// Log after 3 seconds even if user doesn’t hide tab
-//setTimeout(sendSessionData, 3000);
