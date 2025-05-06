@@ -57,6 +57,7 @@ window.addEventListener("beforeunload", sendSessionData);
     sendSessionData();
   }
   */
+
 //});
 
 // ✅ When tab is about to be closed or refreshed
