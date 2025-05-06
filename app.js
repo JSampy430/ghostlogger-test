@@ -51,6 +51,7 @@ function sendSessionData() {
 }
 
 // ✅ When tab is hidden (user switches tab)
+window.addEventListener("beforeunload", sendSessionData);
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     sendSessionData();
@@ -58,6 +59,6 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ✅ When tab is about to be closed or refreshed
-window.addEventListener("beforeunload", sendSessionData);
+
 // Log after 3 seconds even if user doesn’t hide tab
 //setTimeout(sendSessionData, 3000);
