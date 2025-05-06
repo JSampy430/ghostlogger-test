@@ -1,7 +1,7 @@
 let sessionStart = Date.now();
 
 // ✅ Initial log when page loads
-fetch("https://ghostloggerv2.onrender.com/log", {
+/*fetch("https://ghostloggerv2.onrender.com/log", {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
@@ -17,7 +17,7 @@ fetch("https://ghostloggerv2.onrender.com/log", {
 console.log("✅ app.js loaded!");
 document.body.style.background = "#eef";
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
-
+*/
 // ✅ Function to send session duration when user leaves tab
 function sendSessionData() {
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
