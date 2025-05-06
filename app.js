@@ -1,9 +1,11 @@
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
+
 // Track and increment pages viewed
 let firstClickDelay = sessionStorage.getItem("firstClickDelay");
 if (firstClickDelay !== null) {
   firstClickDelay = parseInt(firstClickDelay);
 } // -1 = never clicked
+
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
@@ -35,12 +37,13 @@ function sendSessionData() {
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
   const pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "1");
   const firstClickDelay = parseInt(sessionStorage.getItem("firstClickDelay") || "-1");
-  
+
   const payload = {
     timestamp: new Date().toISOString(),
     session_duration: sessionDuration,
     pages_viewed: pagesViewed,
-    first_click_delay: sessionStorage.getItem("first_click_delay") || "",  // or null
+    first_click_delay: firstClickDelay,
+    user_agent: navigator.userAgent,
   };
 
   console.log("📦 Sending payload:", payload);
@@ -50,28 +53,4 @@ function sendSessionData() {
   });
 
   const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-  console.log("📤 Beacon sent success:", success);
-
-  sessionStorage.setItem("hasSentLog", "true");
-  hasSentLog = true;
-}
-
-document.addEventListener("click", () => {
-  if (firstClickDelay === null) {
-    firstClickDelay = Date.now() - sessionStart;
-    sessionStorage.setItem("firstClickDelay", firstClickDelay.toString());
-    console.log("🖱️ First click delay:", firstClickDelay + "ms");
-  }
-});
-if (document.referrer && !document.referrer.includes(window.location.hostname)) {
-  sessionStorage.clear();
-}
-// ✅ Only log from the first page that hasn’t sent yet
-if (!hasSentLog) {
-  window.addEventListener("pagehide", (e) => {
-    if (!e.persisted) {
-      sendSessionData();
-    }
-  });
-}
-
+  console.log("📤 Beacon
