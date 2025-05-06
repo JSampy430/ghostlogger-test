@@ -1,9 +1,9 @@
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 
 // Track and increment pages viewed
-let firstClickDelay = sessionStorage.getItem("firstClickDelay");
-if (firstClickDelay !== null) {
-  firstClickDelay = parseInt(firstClickDelay);
+let first_click_delay = sessionStorage.getItem("first_click_delay");
+if (first_click_delay !== null) {
+  first_click_delay = parseInt(first_click_delay);
 } // -1 = never clicked
 
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
@@ -21,6 +21,7 @@ if (!sessionStart) {
   sessionStart = parseInt(sessionStart);
 }
 
+// Clear session storage if referrer is external
 if (document.referrer && !document.referrer.includes(window.location.hostname)) {
   sessionStorage.clear();
 }
@@ -31,18 +32,28 @@ let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 console.log("✅ app.js loaded");
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 
+// 🔁 First click capture (only once)
+document.addEventListener("click", () => {
+  if (sessionStorage.getItem("first_click_delay") === null) {
+    const delay = Date.now() - sessionStart;
+    sessionStorage.setItem("first_click_delay", delay.toString());
+    console.log("🖱️ First click delay:", delay + "ms");
+  }
+});
+
+// 📤 Send session data
 function sendSessionData() {
   if (hasSentLog) return;
 
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
   const pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "1");
-  const firstClickDelay = parseInt(sessionStorage.getItem("firstClickDelay") || "-1");
+  const first_click_delay = parseInt(sessionStorage.getItem("first_click_delay") || "-1");
 
   const payload = {
     timestamp: new Date().toISOString(),
     session_duration: sessionDuration,
     pages_viewed: pagesViewed,
-    first_click_delay: firstClickDelay,
+    first_click_delay: first_click_delay,
     user_agent: navigator.userAgent,
   };
 
@@ -59,15 +70,7 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-document.addEventListener("click", () => {
-  if (firstClickDelay === null) {
-    const delay = Date.now() - sessionStart;
-    sessionStorage.setItem("firstClickDelay", delay.toString());
-    console.log("🖱️ First click delay:", delay + "ms");
-  }
-});
-
-// ✅ Only log from the first page that hasn’t sent yet
+// ✅ Only log once on unload (if not from cache)
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) {
