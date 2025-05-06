@@ -52,10 +52,11 @@ function sendSessionData() {
 
 // ✅ When tab is hidden (user switches tab)
 window.addEventListener("beforeunload", sendSessionData);
-document.addEventListener("visibilitychange", () => {
+/*document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     sendSessionData();
   }
+  */
 });
 
 // ✅ When tab is about to be closed or refreshed
