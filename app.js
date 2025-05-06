@@ -1,6 +1,9 @@
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 // Track and increment pages viewed
-let firstClickDelay = null; // -1 = never clicked
+let firstClickDelay = sessionStorage.getItem("firstClickDelay");
+if (firstClickDelay !== null) {
+  firstClickDelay = parseInt(firstClickDelay);
+} // -1 = never clicked
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
