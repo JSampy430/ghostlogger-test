@@ -1,5 +1,9 @@
-// Warm-up ping to prevent cold start
-//fetch("https://ghostloggerv2.onrender.com/ping").catch(() => {});
+// Send a ping that won’t get logged
+fetch("https://ghostloggerv2.onrender.com/ping", {
+  headers: {
+    "X-Warm-Up": "true"
+  }
+}).catch(() => {});
 
 console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
 
