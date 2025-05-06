@@ -26,17 +26,9 @@ console.log("✅ app.js loaded!");
 console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
 
 // ✅ Function to send session duration when user leaves tab
-function sendSessionData(event) {
-   // if (hasSentLog) return; // 🛑 already sent
- // hasSentLog = true;      // ✅ set flag
-  const nextUrl = event?.relatedTarget?.href || document.activeElement?.href || "";
-  const isInternal = nextUrl.includes(window.location.origin);
-
-if (isInternal) {
-    console.log("🔁 Internal navigation detected, skipping log.");
-    return;
-  }
-hasSentLog = true;
+function sendSessionData() {
+    if (hasSentLog) return; // 🛑 already sent
+  hasSentLog = true;      // ✅ set flag
   
   const sessionStart = parseInt(sessionStorage.getItem("sessionStart") || Date.now());
   const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
@@ -62,7 +54,11 @@ hasSentLog = true;
 }
 
 // ✅ When tab is hidden (user switches tab)
-window.addEventListener("beforeunload", (e) => sendSessionData(e));
+window.addEventListener("pagehide", (e) => {
+  if (!e.persisted) { // If it's not a page reload or internal nav
+    sendSessionData();
+  }
+});
 /*document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     sendSessionData();
