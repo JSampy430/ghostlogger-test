@@ -68,7 +68,7 @@ function sendSessionData() {
   const blob = new Blob([JSON.stringify(payload)], {
     type: "application/json",
   });
-
+  console.log("✅ About to send beacon...");
   const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
   console.log("📤 Beacon sent success:", success);
 
