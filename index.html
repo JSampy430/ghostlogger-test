@@ -1,62 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Home</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaGear — Premium Tech Accessories</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script defer src="app.js"></script>
   <style>
-    #cookieBanner {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #222;
-      color: #fff;
-      padding: 16px;
-      display: none;
-      z-index: 9999;
+    body {
+      font-family: 'Segoe UI', sans-serif;
     }
-    #cookieBanner button {
-      margin-left: 10px;
-      padding: 8px 12px;
+    .hero {
+      background: #111 url('https://images.unsplash.com/photo-1549921296-3a6b44560fe0?auto=format&fit=crop&w=1500&q=80') no-repeat center center/cover;
+      color: white;
+      padding: 100px 0;
+      text-align: center;
+    }
+    .product-card img {
+      height: 200px;
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
-  <h1>Home Page</h1>
+  <header class="p-3 bg-dark text-white text-center">
+    <h1>NovaGear</h1>
+    <p>Premium Tech Accessories & Gadgets</p>
+  </header>
 
-  <button onclick="window.location.href='about.html'">Go to About</button>
-  <button onclick="window.location.href='contact.html'">Go to Contact</button>
+  <section class="hero">
+    <h2>Elevate Your Setup</h2>
+    <p>Explore our hand-picked gear designed for performance, style, and everyday convenience.</p>
+    <button class="btn btn-warning mt-3">Shop Now</button>
+  </section>
 
-  <!-- 🍪 Cookie Consent Banner -->
-  <div id="cookieBanner">
-    We use cookies to improve your experience. Do you consent to tracking?
-    <button onclick="acceptCookies()">Accept</button>
-    <button onclick="rejectCookies()">Reject</button>
-  </div>
+  <main class="container my-5">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card product-card">
+          <img src="https://images.unsplash.com/photo-1606813903064-f4bb4e594eb4?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Wireless Mouse">
+          <div class="card-body">
+            <h5 class="card-title">Ergo Wireless Mouse</h5>
+            <p class="card-text">Sculpted comfort. Precision tracking. Long battery life.</p>
+            <button class="btn btn-primary">Add to Cart</button>
+          </div>
+        </div>
+      </div>
 
-  <script>
-    function acceptCookies() {
-      localStorage.setItem("ghostConsent", "true");
-      document.getElementById("cookieBanner").style.display = "none";
-      loadTrackingScript();
-    }
+      <div class="col-md-4">
+        <div class="card product-card">
+          <img src="https://images.unsplash.com/photo-1587825140708-dfaf72ae4bfb?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Bluetooth Headphones">
+          <div class="card-body">
+            <h5 class="card-title">BassBoost Headphones</h5>
+            <p class="card-text">Immersive sound with adaptive noise cancellation.</p>
+            <button class="btn btn-primary">Add to Cart</button>
+          </div>
+        </div>
+      </div>
 
-    function rejectCookies() {
-      localStorage.setItem("ghostConsent", "false");
-      document.getElementById("cookieBanner").style.display = "none";
-    }
+      <div class="col-md-4">
+        <div class="card product-card">
+          <img src="https://images.unsplash.com/photo-1612178996792-bf3fcf542f41?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Laptop Stand">
+          <div class="card-body">
+            <h5 class="card-title">Aluminum Laptop Stand</h5>
+            <p class="card-text">Elevate your workflow with this sleek, ergonomic stand.</p>
+            <button class="btn btn-primary">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-    function loadTrackingScript() {
-      const script = document.createElement("script");
-      script.src = "app.js";
-      document.head.appendChild(script);
-    }
-
-    // Show banner only if user hasn’t made a choice
-    const consent = localStorage.getItem("ghostConsent");
-    if (consent === null) {
-      document.getElementById("cookieBanner").style.display = "block";
-    } else if (consent === "true") {
-      loadTrackingScript();
-    }
-  </script>
+  <footer class="bg-light text-center text-muted py-3">
+    <p>&copy; 2025 NovaGear. All rights reserved.</p>
+  </footer>
 </body>
 </html>
+
