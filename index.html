@@ -20,6 +20,9 @@
       height: 200px;
       object-fit: cover;
     }
+    .section-divider {
+      padding: 80px 0;
+    }
   </style>
 </head>
 <body>
@@ -31,43 +34,37 @@
   <section class="hero">
     <h2>Elevate Your Setup</h2>
     <p>Explore our hand-picked gear designed for performance, style, and everyday convenience.</p>
-    <button class="btn btn-warning mt-3">Shop Now</button>
+    <button class="btn btn-warning mt-3" onclick="window.location.href='checkout.html'">Go to Checkout</button>
   </section>
 
   <main class="container my-5">
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://images.unsplash.com/photo-1606813903064-f4bb4e594eb4?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Wireless Mouse">
-          <div class="card-body">
-            <h5 class="card-title">Ergo Wireless Mouse</h5>
-            <p class="card-text">Sculpted comfort. Precision tracking. Long battery life.</p>
-            <button class="btn btn-primary">Add to Cart</button>
+      <!-- Repeat product cards to increase scroll depth -->
+      ${[...Array(9)].map((_, i) => `
+        <div class="col-md-4">
+          <div class="card product-card">
+            <img src="https://source.unsplash.com/featured/?tech,${i}" class="card-img-top" alt="Product ${i + 1}">
+            <div class="card-body">
+              <h5 class="card-title">Product ${i + 1}</h5>
+              <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <button class="btn btn-primary">Add to Cart</button>
+            </div>
           </div>
-        </div>
-      </div>
+        </div>`).join('')}
+    </div>
 
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://images.unsplash.com/photo-1587825140708-dfaf72ae4bfb?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Bluetooth Headphones">
-          <div class="card-body">
-            <h5 class="card-title">BassBoost Headphones</h5>
-            <p class="card-text">Immersive sound with adaptive noise cancellation.</p>
-            <button class="btn btn-primary">Add to Cart</button>
-          </div>
-        </div>
-      </div>
+    <div class="section-divider text-center">
+      <h3>Join Our Mailing List</h3>
+      <p>Stay updated on the latest product drops and deals.</p>
+      <input type="email" placeholder="Enter your email" class="form-control w-50 mx-auto mb-2">
+      <button class="btn btn-success">Subscribe</button>
+    </div>
 
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://images.unsplash.com/photo-1612178996792-bf3fcf542f41?auto=format&fit=crop&w=800&q=80" class="card-img-top" alt="Laptop Stand">
-          <div class="card-body">
-            <h5 class="card-title">Aluminum Laptop Stand</h5>
-            <p class="card-text">Elevate your workflow with this sleek, ergonomic stand.</p>
-            <button class="btn btn-primary">Add to Cart</button>
-          </div>
-        </div>
-      </div>
+    <div class="section-divider text-center">
+      <h3>Customer Testimonials</h3>
+      <p>"Absolutely love the wireless mouse — buttery smooth!" - Jane D.</p>
+      <p>"Headphones changed the game for my workouts." - Mike L.</p>
+      <p>"Laptop stand is the best investment for my posture." - Sarah T.</p>
     </div>
   </main>
 
