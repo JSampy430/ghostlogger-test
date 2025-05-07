@@ -7,6 +7,14 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   }
 }).catch(() => {});
 
+
+function updateScrollDepthBeforeExit() {
+  const scrollTop = window.scrollY;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+  scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
+}
+
 // Track and increment pages viewed
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
@@ -77,7 +85,9 @@ function sendSessionData() {
   const duration = Math.round((sessionEnd - sessionStart) / 1000);
   const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
   const scrollVelocity = scrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
-
+  
+updateScrollDepthBeforeExit();
+  
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: duration,
