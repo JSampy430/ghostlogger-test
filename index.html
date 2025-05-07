@@ -35,12 +35,14 @@
     <h2>Elevate Your Setup</h2>
     <p>Explore our hand-picked gear designed for performance, style, and everyday convenience.</p>
     <button class="btn btn-warning mt-3" onclick="window.location.href='checkout.html'">Go to Checkout</button>
+    <button class="btn btn-light mt-3 ms-2" onclick="window.location.href='about.html'">About Us</button>
+    <button class="btn btn-light mt-3 ms-2" onclick="window.location.href='contact.html'">Contact</button>
   </section>
 
   <main class="container my-5">
     <div class="row g-4">
       <!-- Repeat product cards to increase scroll depth -->
-      ${[...Array(9)].map((_, i) => `
+      ${[...Array(12)].map((_, i) => `
         <div class="col-md-4">
           <div class="card product-card">
             <img src="https://source.unsplash.com/featured/?tech,${i}" class="card-img-top" alt="Product ${i + 1}">
@@ -48,6 +50,7 @@
               <h5 class="card-title">Product ${i + 1}</h5>
               <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
               <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-outline-secondary ms-2">View Details</button>
             </div>
           </div>
         </div>`).join('')}
@@ -62,6 +65,7 @@
 
     <div class="section-divider text-center">
       <h3>Customer Testimonials</h3>
+      <button class="btn btn-outline-info m-2">Read More Reviews</button>
       <p>"Absolutely love the wireless mouse — buttery smooth!" - Jane D.</p>
       <p>"Headphones changed the game for my workouts." - Mike L.</p>
       <p>"Laptop stand is the best investment for my posture." - Sarah T.</p>
@@ -73,4 +77,3 @@
   </footer>
 </body>
 </html>
-
