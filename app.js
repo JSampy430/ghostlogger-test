@@ -1,23 +1,16 @@
-// Send a ping that won’t get logged
+// ✅ Cleaned and upgraded GhostLogger session script
+
+// 🔥 Warm up Render so it doesn’t go cold
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: {
     "X-Warm-Up": "true"
   }
 }).catch(() => {});
 
-console.log("🔥 pagesViewed before increment:", sessionStorage.getItem("pagesViewed"));
-
 // Track and increment pages viewed
-let first_click_delay = sessionStorage.getItem("first_click_delay");
-if (first_click_delay !== null) {
-  first_click_delay = parseInt(first_click_delay);
-} // -1 = never clicked
-
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
 pagesViewed += 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
-console.log("✅ Incrementing pagesViewed to:", pagesViewed);
-console.log("📄 Pages viewed this session:", pagesViewed);
 
 // Set or get session start time
 let sessionStart = sessionStorage.getItem("sessionStart");
@@ -36,38 +29,61 @@ if (document.referrer && !document.referrer.includes(window.location.hostname)) 
 // Track if log has already been sent
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-console.log("✅ app.js loaded");
-console.log("🕓 Session started at:", new Date(sessionStart).toISOString());
+let firstClickTime = null;
+let firstClickElement = null;
+let scrollDepth = 0;
+let scrollStartTime = Date.now();
+let idleTime = 0;
+let idleTimer;
 
-// 🔁 First click capture (only once)
-document.addEventListener("click", () => {
-  const existingDelay = sessionStorage.getItem("first_click_delay");
-  if (!existingDelay) {
-    const delay = Date.now() - sessionStart;
-    sessionStorage.setItem("first_click_delay", delay.toString());
-    console.log("🖱️ First click delay:", delay + "ms");
+// ✅ Scroll tracking
+window.addEventListener("scroll", () => {
+  const scrollTop = window.scrollY;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+  scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
+});
+
+// ✅ First click capture
+document.addEventListener("click", (e) => {
+  if (!firstClickTime) {
+    firstClickTime = Date.now();
+    firstClickElement = e.target.tagName + (e.target.id ? `#${e.target.id}` : "");
   }
 });
-// 📤 Send session data
+
+// ✅ Idle tracking
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    idleTime += 5; // add idle if no action for 5s
+  }, 5000);
+}
+["mousemove", "keydown", "scroll", "click"].forEach(event =>
+  document.addEventListener(event, resetIdleTimer)
+);
+resetIdleTimer();
+
+// ✅ Send session data once
 function sendSessionData() {
   if (hasSentLog) return;
 
-  const sessionDuration = Math.round((Date.now() - sessionStart) / 1000);
-  const pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "1");
-
-  let first_click_delay = sessionStorage.getItem("first_click_delay");
-  if (first_click_delay !== null && first_click_delay !== "") {
-    first_click_delay = parseInt(first_click_delay);
-  } else {
-    first_click_delay = -1;
-  }
+  const sessionEnd = Date.now();
+  const duration = Math.round((sessionEnd - sessionStart) / 1000);
+  const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
+  const scrollVelocity = scrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
 
   const payload = {
-    timestamp: new Date().toISOString(),
-    session_duration: sessionDuration,
+    timestamp: new Date(sessionStart).toISOString(),
+    session_duration: duration,
     pages_viewed: pagesViewed,
-    first_click_delay: first_click_delay,
-    user_agent: navigator.userAgent,
+    first_click_delay: timeToClick,
+    page_path: window.location.pathname,
+    scroll_path: `${scrollDepth}%`,
+    scroll_velocity: scrollVelocity.toFixed(2) + "%/s",
+    first_click_element: firstClickElement || "",
+    time_to_click: timeToClick,
+    idle_time: idleTime + "s"
   };
 
   console.log("📦 Sending payload:", payload);
@@ -75,7 +91,7 @@ function sendSessionData() {
   const blob = new Blob([JSON.stringify(payload)], {
     type: "application/json",
   });
-  console.log("✅ About to send beacon...");
+
   const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
   console.log("📤 Beacon sent success:", success);
 
@@ -83,7 +99,7 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// ✅ Only log once on unload (if not from cache)
+// ✅ Log once on unload (if not from cache)
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) {
@@ -91,3 +107,5 @@ if (!hasSentLog) {
     }
   });
 }
+
+console.log("✅ GhostLogger script initialized");
