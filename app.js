@@ -18,15 +18,12 @@ if (!pagesVisited.includes(window.location.pathname)) {
 
 // 📉 Scroll tracking
 let maxScrollDepth = 0;
-let lastScrollPercent = 0;
 
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-  lastScrollPercent = Math.round(percentScrolled);
 }
 window.addEventListener("scroll", updateScrollDepth);
 
@@ -59,12 +56,17 @@ function sendSessionData() {
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
   const finishedPage = maxScrollDepth >= 90;
 
+  // 🔍 Recalculate scroll position at the moment of exit
+  const scrollTop = window.scrollY;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
+
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
     page_path: window.location.pathname,
-    scroll_depth: lastScrollPercent + "%",
+    scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
     finished_page: finishedPage
