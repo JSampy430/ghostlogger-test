@@ -31,7 +31,7 @@ let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
 let firstClickTime = null;
 let firstClickElement = null;
-let scrollDepth = 0;
+let maxScrollDepth = 0;
 let scrollStartTime = Date.now();
 let idleTime = 0;
 let idleTimer;
@@ -41,7 +41,7 @@ function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-  scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
+  maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
 }
 
 window.addEventListener("scroll", updateScrollDepth);
@@ -85,7 +85,7 @@ function sendSessionData() {
   const sessionEnd = Date.now();
   const duration = Math.round((sessionEnd - sessionStart) / 1000);
   const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
-  const scrollVelocity = scrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
+  const scrollVelocity = maxScrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
@@ -93,7 +93,7 @@ function sendSessionData() {
     pages_viewed: pagesViewed,
     first_click_delay: timeToClick,
     page_path: window.location.pathname,
-    scroll_path: `${scrollDepth}%`,
+    scroll_path: `${maxScrollDepth}%`,
     scroll_velocity: scrollVelocity.toFixed(2) + "%/s",
     first_click_element: firstClickElement || "",
     time_to_click: timeToClick,
@@ -117,8 +117,5 @@ if (!hasSentLog) {
     }
   });
 }
-
-console.log("✅ GhostLogger script initialized");
-
 
 console.log("✅ GhostLogger script initialized");
