@@ -1,4 +1,4 @@
-// Warm up Render server
+// 🔥 Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
@@ -6,7 +6,7 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// Page + session tracking
+// 🔄 Track session views
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -16,7 +16,7 @@ if (!pagesVisited.includes(window.location.pathname)) {
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// Scroll tracking
+// 📉 Scroll tracking
 let maxScrollDepth = 0;
 let lastScrollPercent = 0;
 
@@ -30,7 +30,7 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// Time spent at bottom (optional engagement signal)
+// ⌛ Time near bottom tracking
 let timeAtBottom = 0;
 let bottomTimer;
 
@@ -50,7 +50,7 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// Send data
+// 📤 Send tracking data
 function sendSessionData() {
   if (hasSentLog) return;
 
@@ -70,17 +70,17 @@ function sendSessionData() {
     finished_page: finishedPage
   };
 
+  console.log("📦 Sending payload:", payload);
+
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
   sessionStorage.setItem("hasSentLog", "true");
   hasSentLog = true;
 }
 
-// Send data when user leaves
+// 🚪 Trigger on page unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
-    if (!e.persisted) {
-      sendSessionData();
-    }
+    if (!e.persisted) sendSessionData();
   });
 }
