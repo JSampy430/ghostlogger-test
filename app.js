@@ -67,7 +67,12 @@ resetIdleTimer();
 // ✅ Send session data once
 function sendSessionData() {
   if (hasSentLog) return;
-
+  
+ const scrollTop = window.scrollY;
+ const scrollHeight = document.body.scrollHeight - window.innerHeight;
+ const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+ scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
+  
   const sessionEnd = Date.now();
   const duration = Math.round((sessionEnd - sessionStart) / 1000);
   const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
