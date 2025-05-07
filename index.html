@@ -1,13 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="./app.js"></script>
   <title>Home</title>
+  <style>
+    #cookieBanner {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #222;
+      color: #fff;
+      padding: 16px;
+      display: none;
+      z-index: 9999;
+    }
+    #cookieBanner button {
+      margin-left: 10px;
+      padding: 8px 12px;
+    }
+  </style>
 </head>
 <body>
   <h1>Home Page</h1>
 
   <button onclick="window.location.href='about.html'">Go to About</button>
   <button onclick="window.location.href='contact.html'">Go to Contact</button>
+
+  <!-- 🍪 Cookie Consent Banner -->
+  <div id="cookieBanner">
+    We use cookies to improve your experience. Do you consent to tracking?
+    <button onclick="acceptCookies()">Accept</button>
+    <button onclick="rejectCookies()">Reject</button>
+  </div>
+
+  <script>
+    function acceptCookies() {
+      localStorage.setItem("ghostConsent", "true");
+      document.getElementById("cookieBanner").style.display = "none";
+      loadTrackingScript();
+    }
+
+    function rejectCookies() {
+      localStorage.setItem("ghostConsent", "false");
+      document.getElementById("cookieBanner").style.display = "none";
+    }
+
+    function loadTrackingScript() {
+      const script = document.createElement("script");
+      script.src = "app.js";
+      document.head.appendChild(script);
+    }
+
+    // Show banner only if user hasn’t made a choice
+    const consent = localStorage.getItem("ghostConsent");
+    if (consent === null) {
+      document.getElementById("cookieBanner").style.display = "block";
+    } else if (consent === "true") {
+      loadTrackingScript();
+    }
+  </script>
 </body>
 </html>
