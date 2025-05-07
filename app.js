@@ -1,35 +1,36 @@
 // Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
-  headers: {
-    "X-Warm-Up": "true"
-  }
+  headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
 let sessionStart = Date.now();
-let maxScrollDepth = parseInt(sessionStorage.getItem("maxScrollDepth") || "0");
-let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
-pagesViewed += 1;
-sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// Track pages visited
+// Page + session tracking
+let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
+sessionStorage.setItem("pagesViewed", pagesViewed.toString());
+
 let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
 if (!pagesVisited.includes(window.location.pathname)) {
   pagesVisited.push(window.location.pathname);
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// Update scroll depth as user scrolls
+// Scroll tracking
+let maxScrollDepth = 0;
+let lastScrollPercent = 0;
+
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-  sessionStorage.setItem("maxScrollDepth", maxScrollDepth.toString());
+  lastScrollPercent = Math.round(percentScrolled);
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// Track time spent at bottom of page
+// Time spent at bottom (optional engagement signal)
 let timeAtBottom = 0;
 let bottomTimer;
 
@@ -40,9 +41,7 @@ function checkIfAtBottom() {
 
   if (percentScrolled > 95) {
     if (!bottomTimer) {
-      bottomTimer = setInterval(() => {
-        timeAtBottom += 1;
-      }, 1000);
+      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
     }
   } else {
     clearInterval(bottomTimer);
@@ -51,21 +50,21 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// Send session data to backend
+// Send data
 function sendSessionData() {
   if (hasSentLog) return;
 
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
-  const finishedPage = maxScrollDepth > 95 && timeAtBottom >= 2;
+  const finishedPage = maxScrollDepth >= 90;
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
     page_path: window.location.pathname,
-    scroll_depth: maxScrollDepth + "%",
+    scroll_depth: lastScrollPercent + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
     finished_page: finishedPage
@@ -73,12 +72,11 @@ function sendSessionData() {
 
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-
   sessionStorage.setItem("hasSentLog", "true");
   hasSentLog = true;
 }
 
-// Trigger on unload
+// Send data when user leaves
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) {
