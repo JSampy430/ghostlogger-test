@@ -1,16 +1,16 @@
-// ✅ Cleaned and upgraded GhostLogger session script with scroll fix
+// ✅ GhostLogger session-wide scroll & page tracking
 
-// 🔥 Warm up Render so it doesn’t go cold
+// 🔥 Warm up Render
 fetch("https://ghostloggerv2.onrender.com/ping", {
-  headers: {
-    "X-Warm-Up": "true"
-  }
+  headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
 // Track and increment pages viewed
-let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
-pagesViewed += 1;
-sessionStorage.setItem("pagesViewed", pagesViewed.toString());
+let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
+if (!pagesVisited.includes(window.location.pathname)) {
+  pagesVisited.push(window.location.pathname);
+  sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
+}
 
 // Set or get session start time
 let sessionStart = sessionStorage.getItem("sessionStart");
@@ -21,9 +21,13 @@ if (!sessionStart) {
   sessionStart = parseInt(sessionStart);
 }
 
-// Clear session storage if referrer is external
+// Clear session if referrer is external
 if (document.referrer && !document.referrer.includes(window.location.hostname)) {
   sessionStorage.clear();
+  sessionStart = Date.now();
+  sessionStorage.setItem("sessionStart", sessionStart.toString());
+  sessionStorage.setItem("pagesVisited", JSON.stringify([window.location.pathname]));
+  sessionStorage.setItem("maxScrollDepth", "0");
 }
 
 // Track if log has already been sent
@@ -31,7 +35,7 @@ let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
 let firstClickTime = null;
 let firstClickElement = null;
-let maxScrollDepth = 0;
+let maxScrollDepth = parseInt(sessionStorage.getItem("maxScrollDepth") || "0");
 let scrollStartTime = Date.now();
 let idleTime = 0;
 let idleTimer;
@@ -42,6 +46,7 @@ function updateScrollDepth() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
+  sessionStorage.setItem("maxScrollDepth", maxScrollDepth.toString());
 }
 
 window.addEventListener("scroll", updateScrollDepth);
@@ -68,7 +73,7 @@ document.addEventListener("click", (e) => {
 function resetIdleTimer() {
   clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
-    idleTime += 5; // add idle if no action for 5s
+    idleTime += 5;
   }, 5000);
 }
 ["mousemove", "keydown", "scroll", "click"].forEach(event =>
@@ -76,21 +81,20 @@ function resetIdleTimer() {
 );
 resetIdleTimer();
 
-// ✅ Send session data once
+// ✅ Send session data once (at end of full visit)
 function sendSessionData() {
   if (hasSentLog) return;
-
-  updateScrollDepth(); // force last scroll check
+  updateScrollDepth();
 
   const sessionEnd = Date.now();
   const duration = Math.round((sessionEnd - sessionStart) / 1000);
   const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
-  const scrollVelocity = maxScrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
+  const scrollVelocity = maxScrollDepth / ((sessionEnd - scrollStartTime) / 1000);
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: duration,
-    pages_viewed: pagesViewed,
+    pages_viewed: pagesVisited.length,
     first_click_delay: timeToClick,
     page_path: window.location.pathname,
     scroll_path: `${maxScrollDepth}%`,
@@ -109,7 +113,7 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// ✅ Log once on unload (if not from cache)
+// ✅ Log once on unload if not persisted (end of visit)
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) {
@@ -118,4 +122,4 @@ if (!hasSentLog) {
   });
 }
 
-console.log("✅ GhostLogger script initialized");
+console.log("✅ GhostLogger session tracking active");
