@@ -1,4 +1,4 @@
-// ✅ Cleaned and upgraded GhostLogger session script
+// ✅ Cleaned and upgraded GhostLogger session script with scroll fix
 
 // 🔥 Warm up Render so it doesn’t go cold
 fetch("https://ghostloggerv2.onrender.com/ping", {
@@ -6,14 +6,6 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
     "X-Warm-Up": "true"
   }
 }).catch(() => {});
-
-
-function updateScrollDepthBeforeExit() {
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-  scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
-}
 
 // Track and increment pages viewed
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0");
@@ -45,12 +37,24 @@ let idleTime = 0;
 let idleTimer;
 
 // ✅ Scroll tracking
-window.addEventListener("scroll", () => {
+function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
   scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
-});
+}
+
+window.addEventListener("scroll", updateScrollDepth);
+
+// ✅ Capture scroll before link/button navigation
+function addNavigationClickTracking() {
+  document.querySelectorAll("a, button").forEach(el => {
+    el.addEventListener("click", () => {
+      updateScrollDepth();
+    });
+  });
+}
+addNavigationClickTracking();
 
 // ✅ First click capture
 document.addEventListener("click", (e) => {
@@ -75,19 +79,14 @@ resetIdleTimer();
 // ✅ Send session data once
 function sendSessionData() {
   if (hasSentLog) return;
-  
- const scrollTop = window.scrollY;
- const scrollHeight = document.body.scrollHeight - window.innerHeight;
- const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
- scrollDepth = Math.max(scrollDepth, Math.round(percentScrolled));
-  
+
+  updateScrollDepth(); // force last scroll check
+
   const sessionEnd = Date.now();
   const duration = Math.round((sessionEnd - sessionStart) / 1000);
   const timeToClick = firstClickTime ? ((firstClickTime - sessionStart) / 1000).toFixed(1) + "s" : "";
   const scrollVelocity = scrollDepth / ((sessionEnd - scrollStartTime) / 1000); // % per second
-  
-updateScrollDepthBeforeExit();
-  
+
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: duration,
@@ -101,15 +100,11 @@ updateScrollDepthBeforeExit();
     idle_time: idleTime + "s"
   };
 
-  console.log("📦 Sending payload:", payload);
-
   const blob = new Blob([JSON.stringify(payload)], {
     type: "application/json",
   });
 
   const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-  console.log("📤 Beacon sent success:", success);
-
   sessionStorage.setItem("hasSentLog", "true");
   hasSentLog = true;
 }
@@ -122,5 +117,8 @@ if (!hasSentLog) {
     }
   });
 }
+
+console.log("✅ GhostLogger script initialized");
+
 
 console.log("✅ GhostLogger script initialized");
