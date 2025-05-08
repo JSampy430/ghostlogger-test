@@ -1,3 +1,4 @@
+alert("🔥 app.js is working!");
 // 🔥 Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
