@@ -1,11 +1,20 @@
-console.log("📍 Pathname:", window.location.pathname);
-// ✅ Reset log state for every page load (new page visit)
-sessionStorage.setItem("hasSentLog", "false");
+console.log("🚀 app.js loaded and tracking initialized");
 
+// Warm up the Render server
+fetch("https://ghostloggerv2.onrender.com/ping", {
+  headers: { "X-Warm-Up": "true" }
+}).catch(() => {});
+
+// 🕓 Track session start
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Session page tracking
+// Reset only if it's not already marked
+if (!hasSentLog) {
+  sessionStorage.setItem("hasSentLog", "false");
+}
+
+// 🔄 Page tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -32,6 +41,7 @@ function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
+
   if (percentScrolled > 95) {
     if (!bottomTimer) {
       bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
@@ -43,7 +53,7 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking for heatmap
+// 🖱️ Click tracking
 let clickLogs = [];
 document.addEventListener("click", (e) => {
   const x = e.pageX;
@@ -71,7 +81,7 @@ function sendSessionData() {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
-    page_path: window.location.pathname,
+    page_path: window.location.pathname + window.location.search,
     scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
