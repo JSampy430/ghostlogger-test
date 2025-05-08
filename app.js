@@ -6,8 +6,10 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 console.log("🚀 app.js loaded and tracking initialized");
 document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:5px;z-index:9999;'>📲 JS loaded</div>");
 
-// ✅ Reset session log state and prepare tracking
-sessionStorage.setItem("hasSentLog", "false");
+// ✅ Reset log flag if not already set
+if (!sessionStorage.getItem("hasSentLog")) {
+  sessionStorage.setItem("hasSentLog", "false");
+}
 
 let sessionStart = sessionStorage.getItem("sessionStart");
 if (!sessionStart) {
@@ -37,7 +39,7 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom tracking
+// ⌛ Time at bottom tracking
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
@@ -55,7 +57,7 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking with visible text only
+// 🖱️ Click tracking
 let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
   const text = (e.target.innerText || "").trim().substring(0, 50);
@@ -65,12 +67,12 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// 📤 Send tracking data
+// 📤 Final payload sender
 function sendSessionData() {
   if (hasSentLog) return;
 
-  updateScrollDepth(); // ⬅ force capture of final scroll state
-  
+  updateScrollDepth();
+
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
@@ -84,6 +86,7 @@ function sendSessionData() {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
+    pages_list: pagesVisited,
     page_path: window.location.pathname,
     scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
@@ -105,19 +108,20 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 Send on unload
+// 🚪 Only send log when user exits the site (not internal link clicks)
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
-    if (!e.persisted) sendSessionData();
+    const referrer = document.referrer;
+    const isLeavingSite = !referrer.includes(window.location.hostname);
+    if (!e.persisted && isLeavingSite) sendSessionData();
   });
 }
 
-// 📱 Mobile test ping + force send after 5s
+// 📱 Mobile auto-send after 5s
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 if (isMobile) {
   console.log("📱 Mobile device detected");
 
-  // Test ping
   const mobileTestPayload = {
     timestamp: new Date().toISOString(),
     test: "mobile device ping",
@@ -125,7 +129,7 @@ if (isMobile) {
   };
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(mobileTestPayload)], { type: "application/json" }));
 
-  // ⏱️ Force session log after 5s
+  // ⏱️ Force send log on mobile after 5s (fallback)
   setTimeout(() => {
     console.log("⏱️ FORCED SEND on mobile");
     sendSessionData();
