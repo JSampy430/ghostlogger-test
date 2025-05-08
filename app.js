@@ -8,7 +8,7 @@ console.log("🚀 app.js loaded and tracking initialized");
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Page tracking
+// 🔄 Page visit tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -28,18 +28,15 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time at bottom
+// ⌛ Time near bottom tracking
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
-
   if (percentScrolled > 95) {
-    if (!bottomTimer) {
-      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
-    }
+    if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
   } else {
     clearInterval(bottomTimer);
     bottomTimer = null;
@@ -47,19 +44,26 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking for heatmap
+// 🖱️ Click tracking (global, no need per button)
 let clickLogs = [];
 document.addEventListener("click", (e) => {
   const x = e.pageX;
   const y = e.pageY;
   const element = e.target.tagName;
   clickLogs.push({ x, y, element });
+
+  // Optional: delay navigation for tracking
+  const link = e.target.closest("a, button");
+  if (link && link.href) {
+    e.preventDefault();
+    setTimeout(() => {
+      window.location.href = link.href;
+    }, 120);
+  }
 });
 
-// 📤 Send tracking data
+// 📤 Send session data
 function sendSessionData() {
-  console.log("📤 sendSessionData() triggered");
-
   if (hasSentLog) return;
 
   const sessionEnd = Date.now();
@@ -70,8 +74,6 @@ function sendSessionData() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
-
-  console.log("🖱️ Click logs before sending:", clickLogs);
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
@@ -89,29 +91,20 @@ function sendSessionData() {
 
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+
   sessionStorage.setItem("hasSentLog", "true");
   hasSentLog = true;
 }
 
-// 🚪 On unload
+// 🚪 On page unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
-
-  window.addEventListener("beforeunload", sendSessionData);
 }
 
-// 🧪 Manual key press test
-window.addEventListener("keydown", (e) => {
-  if (e.key === "s") {
-    console.log("🧪 Manually triggering sendSessionData()");
-    sendSessionData();
-  }
-});
-
-// ⏱️ Auto-test after 3 seconds
+// 💥 Trigger send after short delay for testing
 setTimeout(() => {
-  console.log("🧪 Forcing sendSessionData() after 3s");
+  console.log("⏳ Forcing sendSessionData() after 3s");
   sendSessionData();
 }, 3000);
