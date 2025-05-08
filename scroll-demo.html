@@ -12,6 +12,7 @@
       line-height: 1.6;
       background: #fff;
       color: #333;
+      position: relative;
     }
     header {
       background: #111;
@@ -39,6 +40,29 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
+      margin: 10px;
+    }
+
+    /* ✅ Scroll depth markers */
+    .scroll-marker {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #0f0;
+      opacity: 0.2;
+      z-index: 10;
+    }
+    .scroll-label {
+      position: absolute;
+      left: 10px;
+      font-size: 12px;
+      color: #0f0;
+      background: #111;
+      padding: 2px 6px;
+      border-radius: 4px;
+      opacity: 0.8;
+      z-index: 10;
     }
   </style>
 </head>
@@ -56,18 +80,42 @@
     <div class="scroll-block"></div>
     <p>✅ You’ve reached the end! Time to check that scroll velocity log!</p>
 
-    <!-- ✅ Button now logs data before returning -->
+    <!-- ✅ Back button triggers session logging -->
     <button onclick="logAndReturn()">⬅ Back to Home</button>
   </section>
 
+  <!-- ✅ Load tracking -->
   <script defer src="app.js?v=2"></script>
+
   <script>
     function logAndReturn() {
       if (typeof sendSessionData === "function") sendSessionData();
       setTimeout(() => {
         window.location.href = 'index.html';
-      }, 300); // let beacon send first
+      }, 300);
     }
+
+    // ✅ Add visual scroll depth markers
+    const markerPercents = [25, 50, 75, 100];
+    window.addEventListener('load', () => {
+      const pageHeight = document.body.scrollHeight;
+
+      markerPercents.forEach(percent => {
+        const scrollTop = (pageHeight * percent) / 100;
+
+        const marker = document.createElement('div');
+        marker.className = 'scroll-marker';
+        marker.style.top = `${scrollTop}px`;
+
+        const label = document.createElement('div');
+        label.className = 'scroll-label';
+        label.style.top = `${scrollTop - 10}px`;
+        label.innerText = `${percent}%`;
+
+        document.body.appendChild(marker);
+        document.body.appendChild(label);
+      });
+    });
   </script>
 
 </body>
