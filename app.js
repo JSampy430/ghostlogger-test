@@ -6,7 +6,15 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 console.log("🚀 app.js loaded and tracking initialized");
 document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:5px;z-index:9999;'>📲 JS loaded</div>");
 
-// ✅ Reset log flag if not already set
+// ✅ Entry log (lightweight)
+navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
+  timestamp: new Date().toISOString(),
+  event: "page_enter",
+  page_path: window.location.pathname,
+  device: navigator.userAgent
+})], { type: "application/json" }));
+
+// ✅ Reset session state if not already set
 if (!sessionStorage.getItem("hasSentLog")) {
   sessionStorage.setItem("hasSentLog", "false");
 }
@@ -39,7 +47,7 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time at bottom tracking
+// ⌛ Time near bottom
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
@@ -67,10 +75,9 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// 📤 Final payload sender
+// 📤 Session payload sender
 function sendSessionData() {
   if (hasSentLog) return;
-
   updateScrollDepth();
 
   const sessionEnd = Date.now();
@@ -108,16 +115,12 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 Only send log when user exits the site (not internal link clicks)
-if (!hasSentLog) {
-  window.addEventListener("pagehide", (e) => {
-    const referrer = document.referrer;
-    const isLeavingSite = !referrer.includes(window.location.hostname);
-    if (!e.persisted && isLeavingSite) sendSessionData();
-  });
-}
+// 🚪 ✅ Log session on ANY page exit
+window.addEventListener("pagehide", (e) => {
+  if (!e.persisted) sendSessionData();
+});
 
-// 📱 Mobile auto-send after 5s
+// 📱 Mobile auto-send fallback
 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 if (isMobile) {
   console.log("📱 Mobile device detected");
@@ -129,7 +132,6 @@ if (isMobile) {
   };
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(mobileTestPayload)], { type: "application/json" }));
 
-  // ⏱️ Force send log on mobile after 5s (fallback)
   setTimeout(() => {
     console.log("⏱️ FORCED SEND on mobile");
     sendSessionData();
