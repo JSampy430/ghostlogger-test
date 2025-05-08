@@ -1,22 +1,11 @@
-// 🔥 Warm up Render server
-fetch("https://ghostloggerv2.onrender.com/ping", {
-  headers: { "X-Warm-Up": "true" }
-}).catch(() => {});
-
 console.log("🚀 app.js loaded and tracking initialized");
 
-// ✅ Reset session log state and prepare tracking
+let sessionStart = Date.now();
+let hasSentLog = false;
+
 sessionStorage.setItem("hasSentLog", "false");
 
-let sessionStart = sessionStorage.getItem("sessionStart");
-if (!sessionStart) {
-  sessionStart = Date.now();
-  sessionStorage.setItem("sessionStart", sessionStart);
-} else {
-  sessionStart = parseInt(sessionStart);
-}
-
-let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
+// 🔄 Page view tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -28,43 +17,37 @@ if (!pagesVisited.includes(window.location.pathname)) {
 
 // 📉 Scroll tracking
 let maxScrollDepth = 0;
-function updateScrollDepth() {
+window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-}
-window.addEventListener("scroll", updateScrollDepth);
+});
 
-// ⌛ Time near bottom tracking
+// ⌛ Time near bottom (80% threshold for mobile)
 let timeAtBottom = 0;
 let bottomTimer;
-function checkIfAtBottom() {
+window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
-  if (percentScrolled > 95) {
-    if (!bottomTimer) {
-      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
-    }
+
+  if (percentScrolled > 80) {
+    if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
   } else {
     clearInterval(bottomTimer);
     bottomTimer = null;
   }
-}
-window.addEventListener("scroll", checkIfAtBottom);
-
-// 🖱️ Click tracking with just visible button text
-let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
-document.addEventListener("click", (e) => {
-  const text = (e.target.innerText || "").trim().substring(0, 50);
-  if (text) {
-    clickLogs.push(text);
-    sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
-  }
 });
 
-// 📤 Send tracking data
+// 🖱️ Click tracking (text only)
+let clickLogs = [];
+document.addEventListener("click", (e) => {
+  const text = e.target.innerText.trim();
+  if (text) clickLogs.push(text);
+});
+
+// 📤 Send data
 function sendSessionData() {
   if (hasSentLog) return;
 
@@ -90,6 +73,7 @@ function sendSessionData() {
   };
 
   console.log("📦 Sending payload:", payload);
+
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
@@ -99,10 +83,12 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 Send on unload
-if (!hasSentLog) {
-  window.addEventListener("pagehide", (e) => {
-    if (!e.persisted) sendSessionData();
-  });
-}
-
+// 🚪 On unload and visibility change
+window.addEventListener("pagehide", (e) => {
+  if (!e.persisted) sendSessionData();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    sendSessionData();
+  }
+});
