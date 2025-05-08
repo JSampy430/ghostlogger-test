@@ -1,11 +1,9 @@
 console.log("🚀 app.js loaded and tracking initialized");
 
-let sessionStart = Date.now();
-let hasSentLog = false;
-
 sessionStorage.setItem("hasSentLog", "false");
+let sessionStart = Date.now();
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Page view tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -15,39 +13,41 @@ if (!pagesVisited.includes(window.location.pathname)) {
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// 📉 Scroll tracking
 let maxScrollDepth = 0;
-window.addEventListener("scroll", () => {
+function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-});
+}
+window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom (80% threshold for mobile)
 let timeAtBottom = 0;
 let bottomTimer;
-window.addEventListener("scroll", () => {
+function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
-
   if (percentScrolled > 80) {
-    if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
+    if (!bottomTimer) {
+      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
+    }
   } else {
     clearInterval(bottomTimer);
     bottomTimer = null;
   }
-});
+}
+window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking (text only)
 let clickLogs = [];
 document.addEventListener("click", (e) => {
+  const x = e.pageX;
+  const y = e.pageY;
+  const element = e.target.tagName;
   const text = e.target.innerText.trim();
-  if (text) clickLogs.push(text);
+  if (text) clickLogs.push(text); // Only store button/link names
 });
 
-// 📤 Send data
 function sendSessionData() {
   if (hasSentLog) return;
 
@@ -73,9 +73,24 @@ function sendSessionData() {
   };
 
   console.log("📦 Sending payload:", payload);
-
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+
+  if (navigator.sendBeacon) {
+    const success = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    if (!success) {
+      fetch("https://ghostloggerv2.onrender.com/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+  } else {
+    fetch("https://ghostloggerv2.onrender.com/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  }
 
   setTimeout(() => {
     sessionStorage.setItem("hasSentLog", "true");
@@ -83,12 +98,9 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 On unload and visibility change
-window.addEventListener("pagehide", (e) => {
-  if (!e.persisted) sendSessionData();
-});
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    sendSessionData();
-  }
-});
+if (!hasSentLog) {
+  window.addEventListener("pagehide", (e) => {
+    if (!e.persisted) sendSessionData();
+  });
+}
+
