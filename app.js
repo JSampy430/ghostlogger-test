@@ -1,6 +1,6 @@
 // 🔥 Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
-  headers: { "X-Warm-Up": "true" }
+headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
 console.log("🚀 app.js loaded and tracking initialized");
@@ -11,10 +11,10 @@ sessionStorage.setItem("hasSentLog", "false");
 
 let sessionStart = sessionStorage.getItem("sessionStart");
 if (!sessionStart) {
-  sessionStart = Date.now();
-  sessionStorage.setItem("sessionStart", sessionStart);
+sessionStart = Date.now();
+sessionStorage.setItem("sessionStart", sessionStart);
 } else {
-  sessionStart = parseInt(sessionStart);
+sessionStart = parseInt(sessionStart);
 }
 
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
@@ -23,17 +23,17 @@ sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
 let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
 if (!pagesVisited.includes(window.location.pathname)) {
-  pagesVisited.push(window.location.pathname);
-  sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
+pagesVisited.push(window.location.pathname);
+sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
 // 📉 Scroll tracking
 let maxScrollDepth = 0;
 function updateScrollDepth() {
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-  maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
+const scrollTop = window.scrollY;
+const scrollHeight = document.body.scrollHeight - window.innerHeight;
+const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
 }
 window.addEventListener("scroll", updateScrollDepth);
 
@@ -41,70 +41,76 @@ window.addEventListener("scroll", updateScrollDepth);
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const percentScrolled = (scrollTop / scrollHeight) * 100;
-  if (percentScrolled > 80) {
-    if (!bottomTimer) {
-      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
-    }
-  } else {
-    clearInterval(bottomTimer);
-    bottomTimer = null;
-  }
+const scrollTop = window.scrollY;
+const scrollHeight = document.body.scrollHeight - window.innerHeight;
+const percentScrolled = (scrollTop / scrollHeight) * 100;
+if (percentScrolled > 80) {
+if (!bottomTimer) {
+bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
+}
+} else {
+clearInterval(bottomTimer);
+bottomTimer = null;
+}
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
 // 🖱️ Click tracking with visible text only
 let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
-  const text = (e.target.innerText || "").trim().substring(0, 50);
-  if (text) {
-    clickLogs.push(text);
-    sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
-  }
+const text = (e.target.innerText || "").trim().substring(0, 50);
+if (text) {
+clickLogs.push(text);
+sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
+}
 });
 
 // 📤 Send tracking data
 function sendSessionData() {
-  if (hasSentLog) return;
+if (hasSentLog) return;
 
-  const sessionEnd = Date.now();
-  const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
-  const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
-  const finishedPage = maxScrollDepth >= 90;
+const sessionEnd = Date.now();
+const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
+const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
+const finishedPage = maxScrollDepth >= 90;
 
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
+const scrollTop = window.scrollY;
+const scrollHeight = document.body.scrollHeight - window.innerHeight;
+const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
-  const payload = {
-    timestamp: new Date(sessionStart).toISOString(),
-    session_duration: sessionDuration + "s",
-    pages_viewed: pagesVisited.length,
-    page_path: window.location.pathname,
-    scroll_depth: Math.round(currentScrollPercent) + "%",
-    scroll_velocity: scrollVelocity,
-    time_at_bottom: timeAtBottom + "s",
-    finished_page: finishedPage,
-    click_map: clickLogs
-  };
+const payload = {
+timestamp: new Date(sessionStart).toISOString(),
+session_duration: sessionDuration + "s",
+pages_viewed: pagesVisited.length,
+page_path: window.location.pathname,
+scroll_depth: Math.round(currentScrollPercent) + "%",
+scroll_velocity: scrollVelocity,
+time_at_bottom: timeAtBottom + "s",
+finished_page: finishedPage,
+click_map: clickLogs
+};
 
-  console.log("📦 Sending payload:", payload);
-  document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:15px;left:0;background:#111;color:#f90;font-size:10px;padding:5px;z-index:9999;'>📤 Payload sent</div>");
+console.log("📦 Sending payload:", payload);
+document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:15px;left:0;background:#111;color:#f90;font-size:10px;padding:5px;z-index:9999;'>📤 Payload sent</div>");
 
-  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
-  setTimeout(() => {
-    sessionStorage.setItem("hasSentLog", "true");
-    hasSentLog = true;
-  }, 500);
+setTimeout(() => {
+sessionStorage.setItem("hasSentLog", "true");
+hasSentLog = true;
+}, 500);
 }
 
 // 🚪 Send on unload
 if (!hasSentLog) {
-  window.addEventListener("pagehide", (e) => {
-    if (!e.persisted) sendSessionData();
-  });
+window.addEventListener("pagehide", (e) => {
+if (!e.persisted) sendSessionData();
+});
 }
+
+// 🧪 TEMP TEST: Force sendSessionData after 5 seconds for mobile testing
+setTimeout(() => {
+console.log("⏱️ FORCED SEND on mobile test");
+sendSessionData();
+}, 5000);
