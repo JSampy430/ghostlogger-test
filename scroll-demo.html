@@ -55,10 +55,20 @@
     <div class="scroll-block"></div>
     <div class="scroll-block"></div>
     <p>✅ You’ve reached the end! Time to check that scroll velocity log!</p>
-    <button onclick="window.location.href='index.html'">⬅ Back to Home</button>
+
+    <!-- ✅ Button now logs data before returning -->
+    <button onclick="logAndReturn()">⬅ Back to Home</button>
   </section>
 
-  <!-- Your tracking script -->
   <script defer src="app.js?v=2"></script>
+  <script>
+    function logAndReturn() {
+      if (typeof sendSessionData === "function") sendSessionData();
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 300); // let beacon send first
+    }
+  </script>
+
 </body>
 </html>
