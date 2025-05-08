@@ -103,8 +103,3 @@ if (!hasSentLog) {
   });
 }
 
-// 💥 Trigger send after short delay for testing
-setTimeout(() => {
-  console.log("⏳ Forcing sendSessionData() after 3s");
-  sendSessionData();
-}, 3000);
