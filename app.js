@@ -4,6 +4,7 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 }).catch(() => {});
 
 console.log("🚀 app.js loaded and tracking initialized");
+document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:5px;z-index:9999;'>📲 JS loaded</div>");
 
 // ✅ Reset session log state and prepare tracking
 sessionStorage.setItem("hasSentLog", "false");
@@ -43,7 +44,7 @@ function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
-  if (percentScrolled > 95) {
+  if (percentScrolled > 80) {
     if (!bottomTimer) {
       bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
     }
@@ -54,7 +55,7 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking with just visible button text
+// 🖱️ Click tracking with visible text only
 let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
   const text = (e.target.innerText || "").trim().substring(0, 50);
@@ -90,24 +91,10 @@ function sendSessionData() {
   };
 
   console.log("📦 Sending payload:", payload);
+  document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:15px;left:0;background:#111;color:#f90;font-size:10px;padding:5px;z-index:9999;'>📤 Payload sent</div>");
+
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-
-  let beaconSuccess = false;
-  if (navigator.sendBeacon) {
-    beaconSuccess = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-    console.log("📡 Beacon success:", beaconSuccess);
-  }
-
-  if (!beaconSuccess) {
-    console.log("↩️ Falling back to fetch...");
-    fetch("https://ghostloggerv2.onrender.com/log", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-    .then(res => console.log("✅ Fallback fetch status:", res.status))
-    .catch(err => console.error("❌ Fallback fetch failed:", err));
-  }
+  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
   setTimeout(() => {
     sessionStorage.setItem("hasSentLog", "true");
