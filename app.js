@@ -1,11 +1,15 @@
+// 🔥 Warm up Render server
+fetch("https://ghostloggerv2.onrender.com/ping", {
+  headers: { "X-Warm-Up": "true" }
+}).catch(() => {});
+
 console.log("🚀 app.js loaded and tracking initialized");
+console.log("📍 Pathname:", window.location.pathname);
 
 // ✅ Reset log state for every page load (new page visit)
 sessionStorage.setItem("hasSentLog", "false");
 
-let sessionStart = parseInt(sessionStorage.getItem("sessionStart") || Date.now());
-sessionStorage.setItem("sessionStart", sessionStart);
-
+let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
 // 🔄 Session page tracking
@@ -46,18 +50,16 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking with context (detailed heatmap)
+// 🖱️ Click tracking for heatmap with button label + class
 let clickLogs = [];
-
 document.addEventListener("click", (e) => {
   const x = e.pageX;
   const y = e.pageY;
   const element = e.target.tagName;
-  const text = e.target.textContent?.trim() || "";
-  const id = e.target.id || "";
+  const text = (e.target.innerText || "").trim().substring(0, 50);
   const className = e.target.className || "";
 
-  clickLogs.push({ x, y, element, text, id, class: className });
+  clickLogs.push({ x, y, element, text, class: className });
 });
 
 // 📤 Send tracking data
@@ -73,6 +75,8 @@ function sendSessionData() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
+  console.log("📌 Click logs before sending: ", clickLogs);
+
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
@@ -85,9 +89,7 @@ function sendSessionData() {
     click_map: clickLogs
   };
 
-  console.log("📌 Click logs before sending:", clickLogs);
   console.log("📦 Sending payload:", payload);
-
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
@@ -103,4 +105,3 @@ if (!hasSentLog) {
     if (!e.persisted) sendSessionData();
   });
 }
-
