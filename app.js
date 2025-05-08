@@ -69,6 +69,8 @@ document.addEventListener("click", (e) => {
 function sendSessionData() {
   if (hasSentLog) return;
 
+  updateScrollDepth(); // ⬅ force capture of final scroll state
+  
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
