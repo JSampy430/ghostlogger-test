@@ -1,4 +1,3 @@
-alert("🔥 app.js is working!");
 // 🔥 Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
@@ -9,7 +8,7 @@ console.log("🚀 app.js loaded and tracking initialized");
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Session page tracking
+// 🔄 Page tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -21,7 +20,6 @@ if (!pagesVisited.includes(window.location.pathname)) {
 
 // 📉 Scroll tracking
 let maxScrollDepth = 0;
-
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -30,10 +28,9 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom tracking
+// ⌛ Time at bottom
 let timeAtBottom = 0;
 let bottomTimer;
-
 function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -52,7 +49,6 @@ window.addEventListener("scroll", checkIfAtBottom);
 
 // 🖱️ Click tracking for heatmap
 let clickLogs = [];
-
 document.addEventListener("click", (e) => {
   const x = e.pageX;
   const y = e.pageY;
@@ -62,6 +58,8 @@ document.addEventListener("click", (e) => {
 
 // 📤 Send tracking data
 function sendSessionData() {
+  console.log("📤 sendSessionData() triggered");
+
   if (hasSentLog) return;
 
   const sessionEnd = Date.now();
@@ -73,7 +71,7 @@ function sendSessionData() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
-  console.log("🖱️ Click logs before sending:", clickLogs); // ✅ Debug log
+  console.log("🖱️ Click logs before sending:", clickLogs); // Show clicks before sending
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
@@ -95,12 +93,18 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// 🚪 Trigger on page unload
+// 🚪 On unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
-
-  window.addEventListener("beforeunload", sendSessionData); // ✅ Extra backup trigger
+  window.addEventListener("beforeunload", sendSessionData);
 }
 
+// 🧪 Manual test key (press "s" to force log)
+window.addEventListener("keydown", (e) => {
+  if (e.key === "s") {
+    console.log("🧪 Manually triggering sendSessionData()");
+    sendSessionData();
+  }
+});
