@@ -6,7 +6,7 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Track session views
+// 🔄 Session page tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -47,6 +47,16 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
+// 🖱️ Click tracking for heatmap
+let clickLogs = [];
+
+document.addEventListener("click", (e) => {
+  const x = e.pageX;
+  const y = e.pageY;
+  const element = e.target.tagName;
+  clickLogs.push({ x, y, element });
+});
+
 // 📤 Send tracking data
 function sendSessionData() {
   if (hasSentLog) return;
@@ -56,7 +66,7 @@ function sendSessionData() {
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
   const finishedPage = maxScrollDepth >= 90;
 
-  // 🔍 Recalculate scroll position at the moment of exit
+  // Get current scroll position at exit
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
@@ -69,7 +79,8 @@ function sendSessionData() {
     scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
-    finished_page: finishedPage
+    finished_page: finishedPage,
+    click_map: clickLogs
   };
 
   console.log("📦 Sending payload:", payload);
@@ -80,9 +91,10 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// 🚪 Trigger on page unload
+// 🚪 Send on unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
 }
+
