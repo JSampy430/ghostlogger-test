@@ -1,6 +1,6 @@
 console.log("🚀 app.js loaded and tracking initialized");
 
-// Warm up the Render server
+// 🔥 Keep Render server warm
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
@@ -15,9 +15,6 @@ if (!sessionStart) {
 }
 
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
-if (!hasSentLog) {
-  sessionStorage.setItem("hasSentLog", "false");
-}
 
 // 🔄 Page tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
@@ -68,7 +65,8 @@ document.addEventListener("click", (e) => {
 
 // 📤 Send tracking data
 function sendSessionData() {
-  if (hasSentLog) return;
+  const alreadySent = sessionStorage.getItem("hasSentLog") === "true";
+  if (alreadySent) return;
 
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
@@ -95,10 +93,7 @@ function sendSessionData() {
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
-  setTimeout(() => {
-    sessionStorage.setItem("hasSentLog", "true");
-    hasSentLog = true;
-  }, 500);
+  sessionStorage.setItem("hasSentLog", "true");
 }
 
 // 🚪 Send on unload
@@ -107,4 +102,13 @@ if (!hasSentLog) {
     if (!e.persisted) sendSessionData();
   });
 }
+
+// 🧹 Reset session after 10 minutes of inactivity
+setTimeout(() => {
+  sessionStorage.removeItem("sessionStart");
+  sessionStorage.removeItem("hasSentLog");
+  sessionStorage.removeItem("pagesVisited");
+  sessionStorage.removeItem("pagesViewed");
+}, 10 * 60 * 1000);
+
 
