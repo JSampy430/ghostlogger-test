@@ -6,13 +6,13 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 console.log("🚀 app.js loaded and tracking initialized");
 console.log("📍 Pathname:", window.location.pathname);
 
-// ✅ Reset log state for every page load (new page visit)
+// ✅ Reset log state for every page load
 sessionStorage.setItem("hasSentLog", "false");
 
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Session page tracking
+// 🔄 Session tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -32,7 +32,7 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom tracking
+// ⌛ Time near bottom
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
@@ -50,19 +50,16 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking for heatmap with button label + class
+// 🖱️ Click tracking (only text)
 let clickLogs = [];
 document.addEventListener("click", (e) => {
-  const x = e.pageX;
-  const y = e.pageY;
-  const element = e.target.tagName;
   const text = (e.target.innerText || "").trim().substring(0, 50);
-  const className = e.target.className || "";
-
-  clickLogs.push({ x, y, element, text, class: className });
+  if (text) {
+    clickLogs.push(text);
+  }
 });
 
-// 📤 Send tracking data
+// 📤 Send tracking
 function sendSessionData() {
   if (hasSentLog) return;
 
@@ -75,8 +72,6 @@ function sendSessionData() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
-  console.log("📌 Click logs before sending: ", clickLogs);
-
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
@@ -86,7 +81,7 @@ function sendSessionData() {
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
     finished_page: finishedPage,
-    click_map: clickLogs
+    click_map: clickLogs // Now only contains button names/text
   };
 
   console.log("📦 Sending payload:", payload);
@@ -99,7 +94,7 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 Send on unload
+// 🚪 Unload tracking
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
