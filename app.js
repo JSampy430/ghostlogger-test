@@ -3,6 +3,8 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
+console.log("🚀 app.js loaded and tracking initialized");
+
 let sessionStart = Date.now();
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
@@ -66,10 +68,11 @@ function sendSessionData() {
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
   const finishedPage = maxScrollDepth >= 90;
 
-  // Get current scroll position at exit
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
+
+  console.log("🖱️ Click logs before sending:", clickLogs); // ✅ Debug log
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
@@ -91,10 +94,12 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// 🚪 Send on unload
+// 🚪 Trigger on page unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
+
+  window.addEventListener("beforeunload", sendSessionData); // ✅ Extra backup trigger
 }
 
