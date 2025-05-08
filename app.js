@@ -71,7 +71,7 @@ function sendSessionData() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
-  console.log("🖱️ Click logs before sending:", clickLogs); // Show clicks before sending
+  console.log("🖱️ Click logs before sending:", clickLogs);
 
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
@@ -98,13 +98,20 @@ if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
+
   window.addEventListener("beforeunload", sendSessionData);
 }
 
-// 🧪 Manual test key (press "s" to force log)
+// 🧪 Manual key press test
 window.addEventListener("keydown", (e) => {
   if (e.key === "s") {
     console.log("🧪 Manually triggering sendSessionData()");
     sendSessionData();
   }
 });
+
+// ⏱️ Auto-test after 3 seconds
+setTimeout(() => {
+  console.log("🧪 Forcing sendSessionData() after 3s");
+  sendSessionData();
+}, 3000);
