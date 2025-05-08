@@ -3,121 +3,126 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scroll Velocity Test</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+  <title>GhostLogger Demo Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      line-height: 1.6;
-      background: #fff;
+      line-height: 1.7;
+      background-color: #f5f7fa;
       color: #333;
-      position: relative;
     }
     header {
-      background: #111;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .scroll-block {
-      height: 1500px;
-      background: linear-gradient(to bottom, #e3e3e3, #bbb);
-      margin: 40px auto;
-      border-radius: 10px;
-      width: 90%;
-    }
-    section {
-      max-width: 800px;
-      margin: 50px auto;
-      text-align: center;
-    }
-    button {
+      position: sticky;
+      top: 0;
       background: #111;
       color: #fff;
-      padding: 12px 24px;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    nav a {
+      margin-left: 20px;
+      color: #0ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    section {
+      padding: 80px 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1, h2 { margin-top: 0; }
+    button {
+      background-color: #111;
+      color: #fff;
       border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 14px 28px;
       font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      margin-right: 10px;
+      transition: 0.3s ease;
     }
-
-    /* ✅ Scroll depth markers */
-    .scroll-marker {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: #0f0;
-      opacity: 0.2;
-      z-index: 10;
-    }
-    .scroll-label {
-      position: absolute;
-      left: 10px;
-      font-size: 12px;
-      color: #0f0;
+    button:hover { background-color: #333; }
+    footer {
       background: #111;
-      padding: 2px 6px;
-      border-radius: 4px;
-      opacity: 0.8;
-      z-index: 10;
+      color: #fff;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    footer button {
+      background-color: #0ff;
+      color: #000;
+      margin: 10px 10px 0;
+    }
+    .section-divider {
+      height: 2px;
+      background: #ccc;
+      margin: 60px 0;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>🧪 Scroll Velocity Test Page</h1>
-    <p>Scroll down to test how GhostLogger measures speed, depth, and engagement.</p>
+    <div><strong>GhostLogger</strong></div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Features</a>
+      <a href="#">FAQ</a>
+      <a href="#">Contact</a>
+    </nav>
   </header>
 
   <section>
-    <p>This path is meant to challenge your scroll tracking system. Scroll naturally or zip through — GhostLogger will log it all.</p>
-    <div class="scroll-block"></div>
-    <div class="scroll-block"></div>
-    <div class="scroll-block"></div>
-    <p>✅ You’ve reached the end! Time to check that scroll velocity log!</p>
-
-    <!-- ✅ Logs session before going back -->
-    <button onclick="logAndReturn()">⬅ Back to Home</button>
+    <h1>Welcome to the GhostLogger Testing Ground</h1>
+    <p>Scroll, click, and explore to generate realistic data for testing your session tracking system.</p>
+    <button onclick="window.location.href='scroll-demo.html'">🚀 Velocity Scroll Demo</button>
+    <button>Get Started</button>
   </section>
 
-  <!-- ✅ GhostLogger script -->
+  <section>
+    <h2>About This Project</h2>
+    <p>This simulates a user journey to test GhostLogger in real-world scenarios like reading or page-hopping.</p>
+    <button>Explore More</button>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <section>
+    <h2>Feature Breakdown</h2>
+    <ul>
+      <li>📊 Scroll velocity</li>
+      <li>📍 Scroll depth</li>
+      <li>🖱️ Click tracking</li>
+      <li>🧠 Time at bottom</li>
+      <li>📑 Page views</li>
+    </ul>
+    <button>Try Features</button>
+  </section>
+
+  <section>
+    <h2>FAQ</h2>
+    <p><strong>GDPR compliant?</strong> ✅ Yes, we collect no personal data.</p>
+    <button>Understood</button>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <footer>
+    <p>© 2025 GhostLogger — Built by Broski 😎</p>
+    <button>Contact Support</button>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top</button>
+  </footer>
+
+  <!-- ✅ Load app.js with versioning -->
   <script defer src="app.js?v=2"></script>
-
-  <script>
-    function logAndReturn() {
-      if (typeof sendSessionData === "function") sendSessionData();
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 300);
-    }
-
-    // ✅ Add scroll depth markers
-    const markerPercents = [25, 50, 75, 100];
-
-    window.addEventListener('load', () => {
-      const pageHeight = document.body.scrollHeight;
-
-      markerPercents.forEach(percent => {
-        const scrollTop = (pageHeight * percent) / 100;
-
-        const marker = document.createElement('div');
-        marker.className = 'scroll-marker';
-        marker.style.top = `${scrollTop}px`;
-
-        const label = document.createElement('div');
-        label.className = 'scroll-label';
-        label.style.top = `${scrollTop - 10}px`;
-        label.innerText = `${percent}%`;
-
-        document.body.appendChild(marker);
-        document.body.appendChild(label);
-      });
-    });
-  </script>
-
 </body>
 </html>
-
