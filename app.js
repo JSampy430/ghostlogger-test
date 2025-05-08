@@ -1,22 +1,14 @@
 console.log("🚀 app.js loaded and tracking initialized");
 
-// 🔥 Keep Render server warm
-fetch("https://ghostloggerv2.onrender.com/ping", {
-  headers: { "X-Warm-Up": "true" }
-}).catch(() => {});
+// ✅ Reset log state for every page load (new page visit)
+sessionStorage.setItem("hasSentLog", "false");
 
-// 🕓 Persistent session start across pages
-let sessionStart = sessionStorage.getItem("sessionStart");
-if (!sessionStart) {
-  sessionStart = Date.now();
-  sessionStorage.setItem("sessionStart", sessionStart.toString());
-} else {
-  sessionStart = parseInt(sessionStart);
-}
+let sessionStart = parseInt(sessionStorage.getItem("sessionStart") || Date.now());
+sessionStorage.setItem("sessionStart", sessionStart);
 
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// 🔄 Page tracking
+// 🔄 Session page tracking
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -54,19 +46,23 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking
+// 🖱️ Click tracking with context (detailed heatmap)
 let clickLogs = [];
+
 document.addEventListener("click", (e) => {
   const x = e.pageX;
   const y = e.pageY;
   const element = e.target.tagName;
-  clickLogs.push({ x, y, element });
+  const text = e.target.textContent?.trim() || "";
+  const id = e.target.id || "";
+  const className = e.target.className || "";
+
+  clickLogs.push({ x, y, element, text, id, class: className });
 });
 
 // 📤 Send tracking data
 function sendSessionData() {
-  const alreadySent = sessionStorage.getItem("hasSentLog") === "true";
-  if (alreadySent) return;
+  if (hasSentLog) return;
 
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
@@ -81,7 +77,7 @@ function sendSessionData() {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
-    page_path: window.location.pathname + window.location.search,
+    page_path: window.location.pathname,
     scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
@@ -89,11 +85,16 @@ function sendSessionData() {
     click_map: clickLogs
   };
 
+  console.log("📌 Click logs before sending:", clickLogs);
   console.log("📦 Sending payload:", payload);
+
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
-  sessionStorage.setItem("hasSentLog", "true");
+  setTimeout(() => {
+    sessionStorage.setItem("hasSentLog", "true");
+    hasSentLog = true;
+  }, 500);
 }
 
 // 🚪 Send on unload
@@ -102,13 +103,4 @@ if (!hasSentLog) {
     if (!e.persisted) sendSessionData();
   });
 }
-
-// 🧹 Reset session after 10 minutes of inactivity
-setTimeout(() => {
-  sessionStorage.removeItem("sessionStart");
-  sessionStorage.removeItem("hasSentLog");
-  sessionStorage.removeItem("pagesVisited");
-  sessionStorage.removeItem("pagesViewed");
-}, 10 * 60 * 1000);
-
 
