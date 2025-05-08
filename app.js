@@ -1,3 +1,4 @@
+console.log("📍 Pathname:", window.location.pathname);
 // ✅ Reset log state for every page load (new page visit)
 sessionStorage.setItem("hasSentLog", "false");
 
