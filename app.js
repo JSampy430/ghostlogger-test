@@ -72,7 +72,7 @@ function sendSessionData() {
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
-  const finishedPage = maxScrollDepth >= 90;
+  const finishedPage = maxScrollDepth >= 80;
 
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
