@@ -91,7 +91,23 @@ function sendSessionData() {
 
   console.log("📦 Sending payload:", payload);
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+
+  let beaconSuccess = false;
+  if (navigator.sendBeacon) {
+    beaconSuccess = navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+    console.log("📡 Beacon success:", beaconSuccess);
+  }
+
+  if (!beaconSuccess) {
+    console.log("↩️ Falling back to fetch...");
+    fetch("https://ghostloggerv2.onrender.com/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(res => console.log("✅ Fallback fetch status:", res.status))
+    .catch(err => console.error("❌ Fallback fetch failed:", err));
+  }
 
   setTimeout(() => {
     sessionStorage.setItem("hasSentLog", "true");
@@ -104,4 +120,4 @@ if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
-});
+}
