@@ -4,15 +4,19 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 }).catch(() => {});
 
 console.log("🚀 app.js loaded and tracking initialized");
-console.log("📍 Pathname:", window.location.pathname);
 
-// ✅ Reset log state for every page load
+// ✅ Reset session log state and prepare tracking
 sessionStorage.setItem("hasSentLog", "false");
 
-let sessionStart = Date.now();
-let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
+let sessionStart = sessionStorage.getItem("sessionStart");
+if (!sessionStart) {
+  sessionStart = Date.now();
+  sessionStorage.setItem("sessionStart", sessionStart);
+} else {
+  sessionStart = parseInt(sessionStart);
+}
 
-// 🔄 Session tracking
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -32,7 +36,7 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom
+// ⌛ Time near bottom tracking
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
@@ -50,16 +54,17 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking (only text)
-let clickLogs = [];
+// 🖱️ Click tracking with just visible button text
+let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
   const text = (e.target.innerText || "").trim().substring(0, 50);
   if (text) {
     clickLogs.push(text);
+    sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
   }
 });
 
-// 📤 Send tracking
+// 📤 Send tracking data
 function sendSessionData() {
   if (hasSentLog) return;
 
@@ -81,7 +86,7 @@ function sendSessionData() {
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
     finished_page: finishedPage,
-    click_map: clickLogs // Now only contains button names/text
+    click_map: clickLogs
   };
 
   console.log("📦 Sending payload:", payload);
@@ -94,9 +99,10 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 Unload tracking
+// 🚪 Send on unload
 if (!hasSentLog) {
   window.addEventListener("pagehide", (e) => {
     if (!e.persisted) sendSessionData();
   });
 }
+
