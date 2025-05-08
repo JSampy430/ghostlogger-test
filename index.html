@@ -91,7 +91,16 @@
   <section>
     <h2>About This Project</h2>
     <p>This simulates a user journey to test GhostLogger in real-world scenarios like reading or page-hopping.</p>
-    <button>Explore More</button>
+    <p>It was inspired by the need for privacy-focused analytics that still capture real engagement. Broski realized that scroll depth, time spent, and click patterns reveal a lot more than just IP addresses or cookies.</p>
+    <p>"One time, a user spent 3 minutes on a page, barely scrolled, then clicked every button — we learned more from that than from 1000 bounce rates," Broski once said.</p>
+    <p>Here you'll find those stories, tests, and results in action.</p>
+  </section>
+
+  <section>
+    <h2>Case Study: The Page That Tricked Us</h2>
+    <p>We once built a landing page we thought was perfect. High visuals, clean layout, modern CTA — but it flopped.</p>
+    <p>Then GhostLogger showed us: everyone scrolled fast, reached 90% in under 10 seconds, and didn’t stay at the bottom. Turns out, it was too clean. No info. Just vibes.</p>
+    <p>We reworked it, added actual benefits near the middle, and scroll velocity dropped. Time-at-bottom jumped. Boom — conversions doubled.</p>
   </section>
 
   <div class="section-divider"></div>
@@ -105,16 +114,26 @@
       <li>🧠 Time at bottom</li>
       <li>📑 Page views</li>
     </ul>
-    <button>Try Features</button>
+    <p>We use no cookies, no fingerprinting — just behavior you choose to show. What you scroll, how you scroll, and where you drop off. All tracked safely.</p>
   </section>
+
+  <section>
+    <h2>Bonus Section: Just Keep Scrolling</h2>
+    <p>We added this block just to give you something to scroll through. Here's a little story:</p>
+    <p>Once upon a time, there was a ghost named Tracker. He was invisible, polite, and deeply curious. But unlike other trackers, he didn't snoop or spy. He just watched from the shadows — gently noting where you stopped, where you clicked, and how fast you zoomed through the digital world.</p>
+    <p>GhostLogger was born from his legacy — to understand without invading.</p>
+    <p>“People don’t bounce because they’re lazy,” Tracker said. “They bounce because we didn’t guide them.”</p>
+    <p>So here we are. Testing what works. Scroll on.</p>
+  </section>
+
+  <div class="section-divider"></div>
 
   <section>
     <h2>FAQ</h2>
     <p><strong>GDPR compliant?</strong> ✅ Yes, we collect no personal data.</p>
-    <button>Understood</button>
+    <p><strong>Cookie required?</strong> ❌ Nope. Not even a crumb.</p>
+    <p><strong>Can I test this locally?</strong> ✅ Absolutely. Open with any browser, and logs still work (as long as the server is up).</p>
   </section>
-
-  <div class="section-divider"></div>
 
   <footer>
     <p>© 2025 GhostLogger — Built by Broski 😎</p>
@@ -122,136 +141,6 @@
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top</button>
   </footer>
 
-  <!-- 🔥 Embedded GhostLogger Script -->
-  <script>
-    fetch("https://ghostloggerv2.onrender.com/ping", {
-      headers: { "X-Warm-Up": "true" }
-    }).catch(() => {});
-
-    console.log("🚀 app.js loaded and tracking initialized");
-
-    // ✅ Entry log
-    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
-      timestamp: new Date().toISOString(),
-      event: "page_enter",
-      page_path: window.location.pathname,
-      device: navigator.userAgent
-    })], { type: "application/json" }));
-
-    if (!sessionStorage.getItem("hasSentLog")) {
-      sessionStorage.setItem("hasSentLog", "false");
-    }
-
-    let sessionStart = sessionStorage.getItem("sessionStart");
-    if (!sessionStart) {
-      sessionStart = Date.now();
-      sessionStorage.setItem("sessionStart", sessionStart);
-    } else {
-      sessionStart = parseInt(sessionStart);
-    }
-
-    let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
-    let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
-    sessionStorage.setItem("pagesViewed", pagesViewed.toString());
-
-    let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
-    if (!pagesVisited.includes(window.location.pathname)) {
-      pagesVisited.push(window.location.pathname);
-      sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
-    }
-
-    let maxScrollDepth = 0;
-    function updateScrollDepth() {
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-      maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-    }
-    window.addEventListener("scroll", updateScrollDepth);
-
-    let timeAtBottom = 0;
-    let bottomTimer;
-    function checkIfAtBottom() {
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const percentScrolled = (scrollTop / scrollHeight) * 100;
-      if (percentScrolled > 80) {
-        if (!bottomTimer) {
-          bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
-        }
-      } else {
-        clearInterval(bottomTimer);
-        bottomTimer = null;
-      }
-    }
-    window.addEventListener("scroll", checkIfAtBottom);
-
-    let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
-    document.addEventListener("click", (e) => {
-      const text = (e.target.innerText || "").trim().substring(0, 50);
-      if (text) {
-        clickLogs.push(text);
-        sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
-      }
-    });
-
-    function sendSessionData() {
-      if (hasSentLog) return;
-      updateScrollDepth();
-
-      const sessionEnd = Date.now();
-      const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
-      const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
-      const finishedPage = maxScrollDepth >= 80;
-
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
-
-      const payload = {
-        timestamp: new Date(sessionStart).toISOString(),
-        session_duration: sessionDuration + "s",
-        pages_viewed: pagesVisited.length,
-        pages_list: pagesVisited,
-        page_path: window.location.pathname,
-        scroll_depth: Math.round(currentScrollPercent) + "%",
-        scroll_velocity: scrollVelocity,
-        time_at_bottom: timeAtBottom + "s",
-        finished_page: finishedPage,
-        click_map: clickLogs,
-        device: navigator.userAgent
-      };
-
-      console.log("📦 Sending payload:", payload);
-      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-      navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
-
-      setTimeout(() => {
-        sessionStorage.setItem("hasSentLog", "true");
-        hasSentLog = true;
-      }, 500);
-    }
-
-    // ✅ Always trigger on exit
-    window.addEventListener("pagehide", (e) => {
-      if (!e.persisted) sendSessionData();
-    });
-
-    // 📱 Mobile force send fallback
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-    if (isMobile) {
-      console.log("📱 Mobile device detected");
-      navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
-        timestamp: new Date().toISOString(),
-        test: "mobile device ping",
-        device: navigator.userAgent
-      })], { type: "application/json" }));
-
-      setTimeout(() => {
-        console.log("⏱️ FORCED SEND on mobile");
-        sendSessionData();
-      }, 5000);
-    }
-  </script>
+  <!-- You can embed the GhostLogger script here or externally as needed -->
 </body>
 </html>
