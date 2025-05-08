@@ -5,11 +5,16 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-// 🕓 Track session start
-let sessionStart = Date.now();
-let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
+// 🕓 Persistent session start across pages
+let sessionStart = sessionStorage.getItem("sessionStart");
+if (!sessionStart) {
+  sessionStart = Date.now();
+  sessionStorage.setItem("sessionStart", sessionStart.toString());
+} else {
+  sessionStart = parseInt(sessionStart);
+}
 
-// Reset only if it's not already marked
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 if (!hasSentLog) {
   sessionStorage.setItem("hasSentLog", "false");
 }
@@ -41,7 +46,6 @@ function checkIfAtBottom() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = (scrollTop / scrollHeight) * 100;
-
   if (percentScrolled > 95) {
     if (!bottomTimer) {
       bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
@@ -75,8 +79,6 @@ function sendSessionData() {
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
-  console.log("📌 Click logs before sending: ", clickLogs);
-
   const payload = {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
@@ -105,3 +107,4 @@ if (!hasSentLog) {
     if (!e.persisted) sendSessionData();
   });
 }
+
