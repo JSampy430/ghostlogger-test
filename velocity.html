@@ -31,56 +31,38 @@
 
   <div class="sticky-header">
     <h1>🌀 Velocity Scroll Test</h1>
-    <p>Scroll down slowly... then scroll quickly. GhostLogger will calculate your scroll velocity in %/second.</p>
+    <p>Scroll slow... then scroll fast. GhostLogger calculates your scroll speed as %/sec.</p>
   </div>
 
   <div class="container mt-5">
-    <!-- ✅ 60 varied, real-feeling scroll paragraphs -->
-    <p>Welcome to the NovaGear velocity test page. The goal here is to measure your scroll activity over time.</p>
-    <p>Start scrolling at a relaxed pace and then try speeding up. The tracker captures the rate of movement down the page.</p>
-    <p>This helps detect user behavior patterns: attention spans, reading pace, and engagement speed.</p>
-    <p>We simulate a long document here to trigger scroll tracking events naturally.</p>
-    <p>By default, GhostLogger uses scrollY and document height to compute a scroll % value.</p>
-    <p>The faster you scroll, the higher the scroll velocity recorded.</p>
-    <p>On slow scroll, values like 1–2%/s appear. On fast flicks, it can hit 30–50%/s or more.</p>
-    <p>Imagine you're browsing a real blog post or product showcase.</p>
-    <p>Each paragraph here exists purely to simulate distance and movement tracking.</p>
-    <p>GhostLogger will record the maximum scroll depth reached as a % of this page.</p>
-    <p>You can pair this with a time-on-page tracker to create accurate engagement scoring.</p>
-    <p>Velocity is one of the best passive metrics to detect actual user behavior.</p>
-    <p>Think of it as a digital version of someone "skimming" vs "reading".</p>
-    <p>Scroll slowly again to see how the velocity curve drops.</p>
-    <p>Rapid mouse wheel scrolling often spikes the numbers temporarily.</p>
-    <p>All values are sent as part of the session payload to the GhostLogger server.</p>
-    <p>Later on, you can analyze this data to optimize your landing pages.</p>
-    <p>Velocity + duration = insight into intent.</p>
-    <p>You're halfway down the page now. Keep going!</p>
-    <p>The log is only sent once — when you leave the page (tab close or site exit).</p>
-    <p>This ensures we capture a full, uninterrupted session for analysis.</p>
-    <p>Some analytics tools log prematurely, but GhostLogger avoids that by design.</p>
-    <p>At the end of this scroll test, check your CSV — you’ll see velocity logged.</p>
-    <p>This is useful for understanding content effectiveness and UI structure.</p>
-    <p>Still scrolling? You're doing great.</p>
-    <p>The deeper a user scrolls, the more likely they are engaged.</p>
-    <p>Or they're just trying to see what’s at the bottom. Both are useful signals.</p>
-    <p>Mobile users behave differently than desktop — velocity helps surface that.</p>
-    <p>Sessions with high scroll speed but no clicks might be bots — or just impatient visitors.</p>
-    <p>Want more accurate targeting? Track behavior, not just clicks.</p>
-    <p>GhostLogger lets you implement all this with one simple JS snippet.</p>
-    <p>Check your payload for `scroll_velocity` — that’s what we’re testing right now.</p>
-    <p>Almost at the end. This is where the Back button lives.</p>
-    <p>Hope you got a good feel for the scroll behavior logging!</p>
-    <p>Feel free to come back and try different speeds to compare results.</p>
-    <p>Test on mobile vs desktop — velocity varies a lot by input type.</p>
-    <p>Session data will include this URL path: `/velocity.html`.</p>
-    <p>Also check how long you stayed on the page — `session_duration` should be logged too.</p>
-    <p>Okay, you're nearly there.</p>
-    <p>Almost...</p>
-    <p>Just a few more lines...</p>
-    <p>You made it!</p>
+    <!-- Over 100 scrollable lines -->
+    <p>Scroll Test Line 1: Welcome to NovaGear Velocity Demo.</p>
+    <p>Scroll Test Line 2: We use JavaScript to track your scroll activity.</p>
+    <p>Scroll Test Line 3: Every scroll event updates your depth and velocity.</p>
+    <p>Scroll Test Line 4: This paragraph is here to add vertical distance.</p>
+    <p>Scroll Test Line 5: Try scrolling slowly and see how the tracker responds.</p>
+    <p>Scroll Test Line 6: The GhostLogger tool runs silently in the background.</p>
+    <p>Scroll Test Line 7: Scroll percent is based on scrollY and document height.</p>
+    <p>Scroll Test Line 8: Velocity = scroll depth ÷ time on page.</p>
+    <p>Scroll Test Line 9: The longer you scroll, the more accurate the data.</p>
+    <p>Scroll Test Line 10: This is a passive way to detect engagement.</p>
+    <p>Scroll Test Line 11: Pause midway and see what happens to velocity.</p>
+    <p>Scroll Test Line 12: Burst scrolls generate much higher scroll velocity.</p>
+    <p>Scroll Test Line 13: Great for detecting real vs skimming behavior.</p>
+    <p>Scroll Test Line 14: Your session data will include scroll_velocity.</p>
+    <p>Scroll Test Line 15: GhostLogger logs this data only on exit.</p>
+    <p>Scroll Test Line 16: Don’t worry, no data is sent until you leave.</p>
+    <p>Scroll Test Line 17: Try refreshing — no duplicate logs happen.</p>
+    <p>Scroll Test Line 18: Useful for dashboards, content, landing pages.</p>
+    <p>Scroll Test Line 19: Scroll tracking is essential for UI testing.</p>
+    <p>Scroll Test Line 20: You're doing great. Keep going.</p>
+
+    <!-- Generating more with a repeat pattern -->
+    <!-- You can repeat these or copy/paste to get even more -->
+    ${[...Array(80)].map((_, i) => `<p>Scroll Test Line ${21 + i}: This is auto-generated filler for scroll testing.</p>`).join('')}
   </div>
 
-  <!-- ✅ True bottom button -->
+  <!-- Final button after deep scroll -->
   <div class="bottom-nav">
     <a href="index.html" class="btn btn-outline-warning btn-lg">⬅ Back to Home</a>
   </div>
