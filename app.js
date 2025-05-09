@@ -32,6 +32,22 @@ function saveCurrentPageDuration() {
   sessionStorage.setItem("pageDurations", JSON.stringify(pageDurations));
 }
 
+// ✅ Handle internal navigation (save time before clicking links)
+function handleInternalNav(e) {
+  const href = e.target.getAttribute("href");
+  const isSameOrigin = href && href.startsWith("/") && !href.startsWith("//");
+
+  if (isSameOrigin) {
+    saveCurrentPageDuration();
+    sessionStorage.setItem("hasSentLog", "false"); // allow log again on next page
+  }
+}
+document.addEventListener("click", (e) => {
+  if (e.target.tagName === "A") {
+    handleInternalNav(e);
+  }
+});
+
 // ✅ Other session values
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 if (!sessionStorage.getItem("hasSentLog")) {
@@ -130,6 +146,7 @@ function sendSessionData() {
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
   sessionStorage.setItem("hasSentLog", "true");
+  sessionStorage.removeItem("pageStart");
   hasSentLog = true;
 }
 
