@@ -1,4 +1,4 @@
-// ✅ GhostLogger Tracking Script (Internal Nav Fix + LocalStorage Duration)
+// ✅ GhostLogger Tracking Script (Full Fix: Duration + Page List)
 
 console.log("🚀 app.js loaded");
 
@@ -14,13 +14,20 @@ let maxScrollDepth = 0;
 let timeAtBottom = 0;
 let bottomTimer = null;
 
-// ✅ Use localStorage for session start (to persist across pages)
+// ✅ Use localStorage for session start (persistent across pages)
 let sessionStart;
 if (!localStorage.getItem("ghost_session_start")) {
   sessionStart = Date.now();
   localStorage.setItem("ghost_session_start", sessionStart);
 } else {
   sessionStart = parseInt(localStorage.getItem("ghost_session_start"));
+}
+
+// ✅ Track pages visited
+let pagesVisited = JSON.parse(localStorage.getItem("ghost_pages") || "[]");
+if (!pagesVisited.includes(window.location.pathname)) {
+  pagesVisited.push(window.location.pathname);
+  localStorage.setItem("ghost_pages", JSON.stringify(pagesVisited));
 }
 
 // 📉 Scroll tracking
@@ -47,14 +54,14 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking
+// 🖱️ Click tracking + detect internal navigation
 let clickLogs = [];
 document.addEventListener("click", (e) => {
-  // Click logging
+  // Track text
   const text = (e.target.innerText || "").trim().substring(0, 50);
   if (text) clickLogs.push(text);
 
-  // Detect internal navigation
+  // Detect internal link
   const link = e.target.closest("a");
   const href = link?.getAttribute("href") || "";
   if (href.startsWith("/") && !href.startsWith("//")) {
@@ -77,6 +84,8 @@ function sendSessionData() {
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: durationSec + "s",
     page_path: window.location.pathname,
+    pages_viewed: pagesVisited.length,
+    pages_list: pagesVisited,
     scroll_depth: maxScrollDepth + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
@@ -88,10 +97,12 @@ function sendSessionData() {
   console.log("📦 Sending payload:", payload);
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", JSON.stringify(payload));
 
+  // ✅ Cleanup
   localStorage.removeItem("ghost_session_start");
+  localStorage.removeItem("ghost_pages");
 }
 
-// 🚪 Trigger only when user truly leaves (not internal clicks)
+// 🚪 Only log if user is leaving the site (not internal nav)
 window.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden" && !isInternalNav) {
     sendSessionData();
