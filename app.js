@@ -1,4 +1,4 @@
-// ✅ GhostLogger Tracking Script
+// ✅ GhostLogger Tracking Script (One log per user only)
 
 console.log("🚀 app.js loaded and tracking initialized");
 
@@ -6,14 +6,6 @@ console.log("🚀 app.js loaded and tracking initialized");
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
-
-// ✅ Entry log
-navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
-  timestamp: new Date().toISOString(),
-  event: "page_enter",
-  page_path: window.location.pathname,
-  device: navigator.userAgent
-})], { type: "application/json" }));
 
 // ✅ Initialize session values
 if (!sessionStorage.getItem("hasSentLog")) {
