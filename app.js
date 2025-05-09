@@ -16,6 +16,22 @@ if (!sessionStorage.getItem("sessionStart")) {
   sessionStart = parseInt(sessionStorage.getItem("sessionStart"));
 }
 
+// ✅ Per-page start time
+let pageStart = Date.now();
+sessionStorage.setItem("pageStart", pageStart.toString());
+
+// ✅ Track page durations
+let pageDurations = JSON.parse(sessionStorage.getItem("pageDurations") || "[]");
+function saveCurrentPageDuration() {
+  const pageEnd = Date.now();
+  const durationSec = Math.round((pageEnd - pageStart) / 1000);
+  pageDurations.push({
+    path: window.location.pathname,
+    duration: `${durationSec}s`
+  });
+  sessionStorage.setItem("pageDurations", JSON.stringify(pageDurations));
+}
+
 // ✅ Other session values
 let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 if (!sessionStorage.getItem("hasSentLog")) {
@@ -81,7 +97,9 @@ document.addEventListener("click", (e) => {
 function sendSessionData() {
   if (hasSentLog) return;
 
+  saveCurrentPageDuration();
   updateScrollDepth();
+
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
@@ -102,6 +120,7 @@ function sendSessionData() {
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
     finished_page: finishedPage,
+    page_durations: pageDurations,
     click_map: clickLogs,
     device: navigator.userAgent
   };
