@@ -7,20 +7,21 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-// ✅ Session values
+// ✅ Lock in session start time (only once per tab)
+let sessionStart;
+if (!sessionStorage.getItem("sessionStart")) {
+  sessionStart = Date.now();
+  sessionStorage.setItem("sessionStart", sessionStart);
+} else {
+  sessionStart = parseInt(sessionStorage.getItem("sessionStart"));
+}
+
+// ✅ Other session values
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 if (!sessionStorage.getItem("hasSentLog")) {
   sessionStorage.setItem("hasSentLog", "false");
 }
 
-let sessionStart = sessionStorage.getItem("sessionStart");
-if (!sessionStart) {
-  sessionStart = Date.now();
-  sessionStorage.setItem("sessionStart", sessionStart);
-} else {
-  sessionStart = parseInt(sessionStart);
-}
-
-let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
 sessionStorage.setItem("pagesViewed", pagesViewed.toString());
 
@@ -30,7 +31,7 @@ if (!pagesVisited.includes(window.location.pathname)) {
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// 🧹 Reset scroll data if new page
+// 🧹 Reset scroll data if page changed
 let lastPage = sessionStorage.getItem("lastPage");
 if (lastPage !== window.location.pathname) {
   sessionStorage.setItem("lastPage", window.location.pathname);
