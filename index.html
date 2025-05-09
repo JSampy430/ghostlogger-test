@@ -1,136 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GhostLogger Demo Page</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaGear — Premium Tech Accessories</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script defer src="app.js?v=2"></script>
   <style>
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      line-height: 1.7;
-      background-color: #f5f7fa;
-      color: #333;
+       min-height: 3000px;
+      font-family: 'Segoe UI', sans-serif;
     }
-    header {
-      position: sticky;
-      top: 0;
-      background: #111;
-      color: #fff;
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    nav a {
-      margin-left: 20px;
-      color: #0ff;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    section {
-      padding: 80px 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1, h2 { margin-top: 0; }
-    button {
-      background-color: #111;
-      color: #fff;
-      border: none;
-      padding: 14px 28px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 20px;
-      margin-right: 10px;
-      transition: 0.3s ease;
-    }
-    button:hover { background-color: #333; }
-    footer {
-      background: #111;
-      color: #fff;
+    .hero {
+      background: #111 url('https://images.unsplash.com/photo-1549921296-3a6b44560fe0?auto=format&fit=crop&w=1500&q=80') no-repeat center center/cover;
+      color: white;
+      padding: 100px 0;
       text-align: center;
-      padding: 60px 20px;
     }
-    footer button {
-      background-color: #0ff;
-      color: #000;
-      margin: 10px 10px 0;
+    .product-card img {
+      height: 200px;
+      object-fit: cover;
     }
     .section-divider {
-      height: 2px;
-      background: #ccc;
-      margin: 60px 0;
+      padding: 80px 0;
     }
   </style>
 </head>
 <body>
-
-  <header>
-    <div><strong>GhostLogger</strong></div>
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#">Features</a>
-      <a href="#">FAQ</a>
-      <a href="#">Contact</a>
-    </nav>
+  <header class="p-3 bg-dark text-white text-center">
+    <h1>NovaGear</h1>
+    <p>Premium Tech Accessories & Gadgets</p>
   </header>
 
-  <section>
-    <h1>Welcome to the GhostLogger Testing Ground</h1>
-    <p>Scroll, click, and explore to generate realistic data for testing your session tracking system.</p>
-    <button onclick="window.location.href='scroll-demo.html'">🚀 Velocity Scroll Demo</button>
-    <button>Get Started</button>
+  <section class="hero">
+    <h2>Elevate Your Setup</h2>
+    <p>Explore our hand-picked gear designed for performance, style, and everyday convenience.</p>
+    <button class="btn btn-warning mt-3" onclick="window.location.href='checkout.html'">Go to Checkout</button>
+    <button class="btn btn-light mt-3 ms-2" onclick="window.location.href='about.html'">About Us</button>
+    <button class="btn btn-light mt-3 ms-2" onclick="window.location.href='contact.html'">Contact</button>
   </section>
 
-  <section>
-    <h2>About This Project</h2>
-    <p>This simulates a user journey to test GhostLogger in real-world scenarios like reading or page-hopping.</p>
-    <p>It was inspired by the need for privacy-focused analytics that still capture real engagement. Broski realized that scroll depth, time spent, and click patterns reveal a lot more than just IP addresses or cookies.</p>
-    <p>"One time, a user spent 3 minutes on a page, barely scrolled, then clicked every button — we learned more from that than from 1000 bounce rates," Broski once said.</p>
-    <p>Here you'll find those stories, tests, and results in action.</p>
-  </section>
+  <main class="container my-5">
+    <div class="row g-4">
+      <!-- Repeat product cards to increase scroll depth -->
+      ${[...Array(12)].map((_, i) => `
+        <div class="col-md-4">
+          <div class="card product-card">
+            <img src="https://source.unsplash.com/featured/?tech,${i}" class="card-img-top" alt="Product ${i + 1}">
+            <div class="card-body">
+              <h5 class="card-title">Product ${i + 1}</h5>
+              <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <button class="btn btn-primary">Add to Cart</button>
+              <button class="btn btn-outline-secondary ms-2">View Details</button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
 
-  <section>
-    <h2>Case Study: The Page That Tricked Us</h2>
-    <p>We once built a landing page we thought was perfect. High visuals, clean layout, modern CTA — but it flopped.</p>
-    <p>Then GhostLogger showed us: everyone scrolled fast, reached 90% in under 10 seconds, and didn’t stay at the bottom. Turns out, it was too clean. No info. Just vibes.</p>
-    <p>We reworked it, added actual benefits near the middle, and scroll velocity dropped. Time-at-bottom jumped. Boom — conversions doubled.</p>
-  </section>
+    <div class="section-divider text-center">
+      <h3>Join Our Mailing List</h3>
+      <p>Stay updated on the latest product drops and deals.</p>
+      <input type="email" placeholder="Enter your email" class="form-control w-50 mx-auto mb-2">
+      <button class="btn btn-success">Subscribe</button>
+    </div>
 
-  <div class="section-divider"></div>
+    <div class="section-divider text-center">
+      <h3>Customer Testimonials</h3>
+      <button class="btn btn-outline-info m-2">Read More Reviews</button>
+      <p>"Absolutely love the wireless mouse — buttery smooth!" - Jane D.</p>
+      <p>"Headphones changed the game for my workouts." - Mike L.</p>
+      <p>"Laptop stand is the best investment for my posture." - Sarah T.</p>
+    </div>
+  </main>
 
-  <section>
-    <h2>Feature Breakdown</h2>
-    <ul>
-      <li>📊 Scroll velocity</li>
-      <li>📍 Scroll depth</li>
-      <li>🖱️ Click tracking</li>
-      <li>🧠 Time at bottom</li>
-      <li>📑 Page views</li>
-    </ul>
-    <p>We use no cookies, no fingerprinting — just behavior you choose to show. What you scroll, how you scroll, and where you drop off. All tracked safely.</p>
-  </section>
-
-  <section>
-    <h2>FAQ</h2>
-    <p><strong>GDPR compliant?</strong> ✅ Yes, we collect no personal data.</p>
-    <p><strong>Cookie required?</strong> ❌ Nope. Not even a crumb.</p>
-    <p><strong>Can I test this locally?</strong> ✅ Absolutely. Open with any browser, and logs still work (as long as the server is up).</p>
-  </section>
-
-  <footer>
-    <p>© 2025 GhostLogger — Built by Broski 😎</p>
-    <button>Contact Support</button>
-    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top</button>
+  <footer class="bg-light text-center text-muted py-3">
+    <p>&copy; 2025 NovaGear. All rights reserved.</p>
   </footer>
-
-  <!-- ✅ Load tracking logic -->
-  <script defer src="app.js"></script>
 </body>
 </html>
