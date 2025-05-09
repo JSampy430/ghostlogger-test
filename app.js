@@ -101,13 +101,11 @@ function sendSessionData() {
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
-  setTimeout(() => {
-    sessionStorage.setItem("hasSentLog", "true");
-    hasSentLog = true;
-  }, 500);
+  sessionStorage.setItem("hasSentLog", "true"); // ✅ flag it before pagehide too
+  hasSentLog = true;
 }
 
 // 🚪 Send on page exit
 window.addEventListener("pagehide", (e) => {
-  if (!e.persisted) sendSessionData();
+  if (!e.persisted && !hasSentLog) sendSessionData();
 });
