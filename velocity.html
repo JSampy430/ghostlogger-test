@@ -8,7 +8,6 @@
   <script defer src="app.js?v=3"></script>
   <style>
     body {
-      min-height: 5000px;
       font-family: 'Segoe UI', sans-serif;
       background: #111;
       color: white;
@@ -23,8 +22,8 @@
       z-index: 10;
     }
     .bottom-nav {
-      padding-top: 100px;
       text-align: center;
+      padding: 100px 0 40px;
     }
   </style>
 </head>
@@ -35,14 +34,44 @@
     <p>Scroll slowly... then scroll fast. GhostLogger will measure your scroll speed (velocity).</p>
   </div>
 
-  <!-- Filler content to scroll through -->
+  <!-- ✅ Hardcoded scrollable filler content -->
   <div class="container mt-5">
-    ${Array(40).fill('<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula ut libero ultrices, non posuere justo lacinia.</p>').join('')}
+    <!-- Paste this paragraph as many times as you need to increase scroll -->
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula ut libero ultrices, non posuere justo lacinia.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
   </div>
 
-  <!-- ✅ Back to Home Button at Bottom -->
+  <!-- ✅ Button now at true bottom -->
   <div class="bottom-nav">
-    <a href="index.html" class="btn btn-outline-warning btn-lg mt-5">⬅ Back to Home</a>
+    <a href="index.html" class="btn btn-outline-warning btn-lg">⬅ Back to Home</a>
   </div>
 
 </body>
