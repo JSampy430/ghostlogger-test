@@ -7,6 +7,9 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
+// ✅ Track whether user is navigating inside site
+let isInternalNav = false;
+
 // ✅ Lock in session start time (only once per tab)
 let sessionStart;
 if (!sessionStorage.getItem("sessionStart")) {
@@ -32,14 +35,15 @@ function saveCurrentPageDuration() {
   sessionStorage.setItem("pageDurations", JSON.stringify(pageDurations));
 }
 
-// ✅ Handle internal navigation (save time before clicking links)
+// ✅ Handle internal navigation (save time, block log)
 function handleInternalNav(e) {
   const href = e.target.getAttribute("href");
   const isSameOrigin = href && href.startsWith("/") && !href.startsWith("//");
 
   if (isSameOrigin) {
+    isInternalNav = true;
     saveCurrentPageDuration();
-    sessionStorage.setItem("hasSentLog", "false"); // allow log again on next page
+    sessionStorage.setItem("hasSentLog", "false"); // allow log on final page
   }
 }
 document.addEventListener("click", (e) => {
@@ -150,10 +154,9 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// 🚪 Send log only when user leaves the site
+// 🚪 Send only when user truly leaves the site (not internal clicks)
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && !hasSentLog) {
+  if (document.visibilityState === "hidden" && !hasSentLog && !isInternalNav) {
     sendSessionData();
   }
 });
-
