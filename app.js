@@ -7,7 +7,7 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-// ✅ Initialize session values
+// ✅ Session values
 if (!sessionStorage.getItem("hasSentLog")) {
   sessionStorage.setItem("hasSentLog", "false");
 }
@@ -30,13 +30,21 @@ if (!pagesVisited.includes(window.location.pathname)) {
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// 📉 Scroll tracking
+// 🧹 Reset scroll data if new page
+let lastPage = sessionStorage.getItem("lastPage");
+if (lastPage !== window.location.pathname) {
+  sessionStorage.setItem("lastPage", window.location.pathname);
+  sessionStorage.setItem("scrollDepth:" + window.location.pathname, "0");
+}
 let maxScrollDepth = 0;
+
+// 📉 Scroll tracking (per page)
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
   maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
+  sessionStorage.setItem("scrollDepth:" + window.location.pathname, maxScrollDepth.toString());
 }
 window.addEventListener("scroll", updateScrollDepth);
 
@@ -101,7 +109,7 @@ function sendSessionData() {
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
-  sessionStorage.setItem("hasSentLog", "true"); // ✅ flag it before pagehide too
+  sessionStorage.setItem("hasSentLog", "true");
   hasSentLog = true;
 }
 
