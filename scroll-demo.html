@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scroll Velocity Test</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
   <style>
@@ -44,7 +44,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <h1>🧪 Scroll Velocity Test Page</h1>
     <p>Scroll down to test how GhostLogger measures speed, depth, and engagement.</p>
@@ -59,117 +58,10 @@
     <button onclick="logAndReturn()">⬅ Back to Home</button>
   </section>
 
+  <script defer src="app.js"></script>
   <script>
-    console.log("🚀 GhostLogger scroll demo initialized");
-
-    fetch("https://ghostloggerv2.onrender.com/ping", {
-      headers: { "X-Warm-Up": "true" }
-    }).catch(() => {});
-
-    navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
-      timestamp: new Date().toISOString(),
-      event: "page_enter",
-      page_path: window.location.pathname,
-      device: navigator.userAgent
-    })], { type: "application/json" }));
-
-    if (!sessionStorage.getItem("hasSentLog")) sessionStorage.setItem("hasSentLog", "false");
-
-    let sessionStart = sessionStorage.getItem("sessionStart");
-    if (!sessionStart) {
-      sessionStart = Date.now();
-      sessionStorage.setItem("sessionStart", sessionStart);
-    } else {
-      sessionStart = parseInt(sessionStart);
-    }
-
-    let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
-    let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
-    sessionStorage.setItem("pagesViewed", pagesViewed.toString());
-
-    let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
-    if (!pagesVisited.includes(window.location.pathname)) {
-      pagesVisited.push(window.location.pathname);
-      sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
-    }
-
-    let maxScrollDepth = 0;
-    function updateScrollDepth() {
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
-      maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
-    }
-    window.addEventListener("scroll", updateScrollDepth);
-
-    let timeAtBottom = 0;
-    let bottomTimer;
-    function checkIfAtBottom() {
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const percentScrolled = (scrollTop / scrollHeight) * 100;
-      if (percentScrolled > 80) {
-        if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
-      } else {
-        clearInterval(bottomTimer);
-        bottomTimer = null;
-      }
-    }
-    window.addEventListener("scroll", checkIfAtBottom);
-
-    let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
-    document.addEventListener("click", (e) => {
-      const text = (e.target.innerText || "").trim().substring(0, 50);
-      if (text) {
-        clickLogs.push(text);
-        sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
-      }
-    });
-
-    function sendSessionData() {
-      if (hasSentLog) return;
-      updateScrollDepth();
-
-      const sessionEnd = Date.now();
-      const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
-      const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
-      const finishedPage = maxScrollDepth >= 80;
-      const scrollTop = window.scrollY;
-      const scrollHeight = document.body.scrollHeight - window.innerHeight;
-      const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
-
-      const payload = {
-        event: "session_summary",
-        timestamp: new Date(sessionStart).toISOString(),
-        session_duration: sessionDuration + "s",
-        pages_viewed: pagesVisited.length,
-        pages_list: pagesVisited,
-        page_path: window.location.pathname,
-        scroll_depth: Math.round(currentScrollPercent) + "%",
-        scroll_velocity: scrollVelocity,
-        time_at_bottom: timeAtBottom + "s",
-        finished_page: finishedPage,
-        click_map: clickLogs,
-        device: navigator.userAgent
-      };
-
-      console.log("📦 Sending payload:", payload);
-      navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(payload)], {
-        type: "application/json"
-      }));
-
-      setTimeout(() => {
-        sessionStorage.setItem("hasSentLog", "true");
-        hasSentLog = true;
-      }, 500);
-    }
-
-    window.addEventListener("pagehide", (e) => {
-      if (!e.persisted) sendSessionData();
-    });
-
     function logAndReturn() {
-      sendSessionData();
+      if (typeof sendSessionData === "function") sendSessionData();
       setTimeout(() => {
         window.location.href = 'index.html';
       }, 300);
