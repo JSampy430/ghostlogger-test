@@ -10,13 +10,13 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
 // ✅ Track whether user is navigating inside site
 let isInternalNav = false;
 
-// ✅ Lock in session start time (only once per tab)
+// ✅ Use localStorage to persist full session start across pages
 let sessionStart;
-if (!sessionStorage.getItem("sessionStart")) {
+if (!localStorage.getItem("ghost_session_start")) {
   sessionStart = Date.now();
-  sessionStorage.setItem("sessionStart", sessionStart);
+  localStorage.setItem("ghost_session_start", sessionStart);
 } else {
-  sessionStart = parseInt(sessionStorage.getItem("sessionStart"));
+  sessionStart = parseInt(localStorage.getItem("ghost_session_start"));
 }
 
 // ✅ Per-page start time
@@ -43,7 +43,7 @@ function handleInternalNav(e) {
   if (isSameOrigin) {
     isInternalNav = true;
     saveCurrentPageDuration();
-    sessionStorage.setItem("hasSentLog", "false"); // allow log on final page
+    sessionStorage.setItem("hasSentLog", "false"); // allow log again on next page
   }
 }
 document.addEventListener("click", (e) => {
@@ -151,10 +151,11 @@ function sendSessionData() {
 
   sessionStorage.setItem("hasSentLog", "true");
   sessionStorage.removeItem("pageStart");
+  localStorage.removeItem("ghost_session_start"); // clear session after send
   hasSentLog = true;
 }
 
-// 🚪 Send only when user truly leaves the site (not internal clicks)
+// 🚪 Send only when user truly leaves the site (not internal nav)
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden" && !hasSentLog && !isInternalNav) {
     sendSessionData();
