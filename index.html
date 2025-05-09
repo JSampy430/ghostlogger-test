@@ -61,11 +61,6 @@
       color: #000;
       margin: 10px 10px 0;
     }
-    .section-divider {
-      height: 2px;
-      background: #ccc;
-      margin: 60px 0;
-    }
   </style>
 </head>
 <body>
@@ -88,23 +83,15 @@
     <button>Get Started</button>
   </section>
 
-  <section>
-    <h2>About This Project</h2>
-    <p>This simulates a user journey to test GhostLogger in real-world scenarios like reading or page-hopping.</p>
-    <p>It was inspired by the need for privacy-focused analytics that still capture real engagement. Broski realized that scroll depth, time spent, and click patterns reveal a lot more than just IP addresses or cookies.</p>
-    <p>"One time, a user spent 3 minutes on a page, barely scrolled, then clicked every button — we learned more from that than from 1000 bounce rates," Broski once said.</p>
-    <p>Here you'll find those stories, tests, and results in action.</p>
-  </section>
-
   <footer>
     <p>© 2025 GhostLogger — Built by Broski 😎</p>
     <button>Contact Support</button>
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top</button>
   </footer>
 
-  <!-- ✅ Inline tracking script replacing external app.js -->
+  <!-- ✅ Embedded GhostLogger tracking script -->
   <script>
-    console.log("🚀 app.js loaded and tracking initialized");
+    console.log("🚀 GhostLogger initialized");
 
     fetch("https://ghostloggerv2.onrender.com/ping", {
       headers: { "X-Warm-Up": "true" }
@@ -117,7 +104,9 @@
       device: navigator.userAgent
     })], { type: "application/json" }));
 
-    if (!sessionStorage.getItem("hasSentLog")) sessionStorage.setItem("hasSentLog", "false");
+    if (!sessionStorage.getItem("hasSentLog")) {
+      sessionStorage.setItem("hasSentLog", "false");
+    }
 
     let sessionStart = sessionStorage.getItem("sessionStart");
     if (!sessionStart) {
@@ -153,7 +142,9 @@
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
       const percentScrolled = (scrollTop / scrollHeight) * 100;
       if (percentScrolled > 80) {
-        if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
+        if (!bottomTimer) {
+          bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
+        }
       } else {
         clearInterval(bottomTimer);
         bottomTimer = null;
@@ -172,12 +163,13 @@
 
     function sendSessionData() {
       if (hasSentLog) return;
-      updateScrollDepth();
 
+      updateScrollDepth();
       const sessionEnd = Date.now();
       const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
       const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
       const finishedPage = maxScrollDepth >= 80;
+
       const scrollTop = window.scrollY;
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
       const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
@@ -198,8 +190,9 @@
       };
 
       console.log("📦 Sending payload:", payload);
-      const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-      navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+      navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(payload)], {
+        type: "application/json"
+      }));
 
       setTimeout(() => {
         sessionStorage.setItem("hasSentLog", "true");
@@ -211,5 +204,6 @@
       if (!e.persisted) sendSessionData();
     });
   </script>
+
 </body>
 </html>
