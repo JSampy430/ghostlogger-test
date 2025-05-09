@@ -150,7 +150,10 @@ function sendSessionData() {
   hasSentLog = true;
 }
 
-// 🚪 Send on page exit
-window.addEventListener("pagehide", (e) => {
-  if (!e.persisted && !hasSentLog) sendSessionData();
+// 🚪 Send log only when user leaves the site
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && !hasSentLog) {
+    sendSessionData();
+  }
 });
+
