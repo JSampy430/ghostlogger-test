@@ -1,4 +1,4 @@
-// ✅ GhostLogger Tracking Script (Simplified Revert + Session Duration Fix)
+// ✅ GhostLogger Tracking Script (Internal Nav Fix + LocalStorage Duration)
 
 console.log("🚀 app.js loaded");
 
@@ -7,7 +7,14 @@ fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-// ✅ Set session start using localStorage (fixes short duration bug)
+// ✅ Flags and session setup
+let hasSentLog = false;
+let isInternalNav = false;
+let maxScrollDepth = 0;
+let timeAtBottom = 0;
+let bottomTimer = null;
+
+// ✅ Use localStorage for session start (to persist across pages)
 let sessionStart;
 if (!localStorage.getItem("ghost_session_start")) {
   sessionStart = Date.now();
@@ -15,11 +22,6 @@ if (!localStorage.getItem("ghost_session_start")) {
 } else {
   sessionStart = parseInt(localStorage.getItem("ghost_session_start"));
 }
-
-let hasSentLog = false;
-let maxScrollDepth = 0;
-let timeAtBottom = 0;
-let bottomTimer;
 
 // 📉 Scroll tracking
 function updateScrollDepth() {
@@ -48,11 +50,19 @@ window.addEventListener("scroll", checkIfAtBottom);
 // 🖱️ Click tracking
 let clickLogs = [];
 document.addEventListener("click", (e) => {
+  // Click logging
   const text = (e.target.innerText || "").trim().substring(0, 50);
   if (text) clickLogs.push(text);
+
+  // Detect internal navigation
+  const link = e.target.closest("a");
+  const href = link?.getAttribute("href") || "";
+  if (href.startsWith("/") && !href.startsWith("//")) {
+    isInternalNav = true;
+  }
 });
 
-// 📤 Final log
+// 📤 Send session data
 function sendSessionData() {
   if (hasSentLog) return;
   hasSentLog = true;
@@ -78,10 +88,12 @@ function sendSessionData() {
   console.log("📦 Sending payload:", payload);
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", JSON.stringify(payload));
 
-  localStorage.removeItem("ghost_session_start"); // clean up for next run
+  localStorage.removeItem("ghost_session_start");
 }
 
-// 🚪 Trigger log when user leaves tab or site
+// 🚪 Trigger only when user truly leaves (not internal clicks)
 window.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") sendSessionData();
+  if (document.visibilityState === "hidden" && !isInternalNav) {
+    sendSessionData();
+  }
 });
