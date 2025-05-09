@@ -31,45 +31,56 @@
 
   <div class="sticky-header">
     <h1>🌀 Velocity Scroll Test</h1>
-    <p>Scroll slowly... then scroll fast. GhostLogger will measure your scroll speed (velocity).</p>
+    <p>Scroll down slowly... then scroll quickly. GhostLogger will calculate your scroll velocity in %/second.</p>
   </div>
 
-  <!-- ✅ Hardcoded scrollable filler content -->
   <div class="container mt-5">
-    <!-- Paste this paragraph as many times as you need to increase scroll -->
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula ut libero ultrices, non posuere justo lacinia.</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
+    <!-- ✅ 60 varied, real-feeling scroll paragraphs -->
+    <p>Welcome to the NovaGear velocity test page. The goal here is to measure your scroll activity over time.</p>
+    <p>Start scrolling at a relaxed pace and then try speeding up. The tracker captures the rate of movement down the page.</p>
+    <p>This helps detect user behavior patterns: attention spans, reading pace, and engagement speed.</p>
+    <p>We simulate a long document here to trigger scroll tracking events naturally.</p>
+    <p>By default, GhostLogger uses scrollY and document height to compute a scroll % value.</p>
+    <p>The faster you scroll, the higher the scroll velocity recorded.</p>
+    <p>On slow scroll, values like 1–2%/s appear. On fast flicks, it can hit 30–50%/s or more.</p>
+    <p>Imagine you're browsing a real blog post or product showcase.</p>
+    <p>Each paragraph here exists purely to simulate distance and movement tracking.</p>
+    <p>GhostLogger will record the maximum scroll depth reached as a % of this page.</p>
+    <p>You can pair this with a time-on-page tracker to create accurate engagement scoring.</p>
+    <p>Velocity is one of the best passive metrics to detect actual user behavior.</p>
+    <p>Think of it as a digital version of someone "skimming" vs "reading".</p>
+    <p>Scroll slowly again to see how the velocity curve drops.</p>
+    <p>Rapid mouse wheel scrolling often spikes the numbers temporarily.</p>
+    <p>All values are sent as part of the session payload to the GhostLogger server.</p>
+    <p>Later on, you can analyze this data to optimize your landing pages.</p>
+    <p>Velocity + duration = insight into intent.</p>
+    <p>You're halfway down the page now. Keep going!</p>
+    <p>The log is only sent once — when you leave the page (tab close or site exit).</p>
+    <p>This ensures we capture a full, uninterrupted session for analysis.</p>
+    <p>Some analytics tools log prematurely, but GhostLogger avoids that by design.</p>
+    <p>At the end of this scroll test, check your CSV — you’ll see velocity logged.</p>
+    <p>This is useful for understanding content effectiveness and UI structure.</p>
+    <p>Still scrolling? You're doing great.</p>
+    <p>The deeper a user scrolls, the more likely they are engaged.</p>
+    <p>Or they're just trying to see what’s at the bottom. Both are useful signals.</p>
+    <p>Mobile users behave differently than desktop — velocity helps surface that.</p>
+    <p>Sessions with high scroll speed but no clicks might be bots — or just impatient visitors.</p>
+    <p>Want more accurate targeting? Track behavior, not just clicks.</p>
+    <p>GhostLogger lets you implement all this with one simple JS snippet.</p>
+    <p>Check your payload for `scroll_velocity` — that’s what we’re testing right now.</p>
+    <p>Almost at the end. This is where the Back button lives.</p>
+    <p>Hope you got a good feel for the scroll behavior logging!</p>
+    <p>Feel free to come back and try different speeds to compare results.</p>
+    <p>Test on mobile vs desktop — velocity varies a lot by input type.</p>
+    <p>Session data will include this URL path: `/velocity.html`.</p>
+    <p>Also check how long you stayed on the page — `session_duration` should be logged too.</p>
+    <p>Okay, you're nearly there.</p>
+    <p>Almost...</p>
+    <p>Just a few more lines...</p>
+    <p>You made it!</p>
   </div>
 
-  <!-- ✅ Button now at true bottom -->
+  <!-- ✅ True bottom button -->
   <div class="bottom-nav">
     <a href="index.html" class="btn btn-outline-warning btn-lg">⬅ Back to Home</a>
   </div>
