@@ -1,12 +1,11 @@
-// 🔥 Warm up Render server
+// ✅ GhostLogger Tracking Script
+
+console.log("🚀 GhostLogger loaded");
+
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-console.log("🚀 app.js loaded and tracking initialized");
-document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:5px;z-index:9999;'>📲 JS loaded</div>");
-
-// ✅ Entry log (lightweight)
 navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
   timestamp: new Date().toISOString(),
   event: "page_enter",
@@ -14,7 +13,6 @@ navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.st
   device: navigator.userAgent
 })], { type: "application/json" }));
 
-// ✅ Reset session state if not already set
 if (!sessionStorage.getItem("hasSentLog")) {
   sessionStorage.setItem("hasSentLog", "false");
 }
@@ -37,7 +35,6 @@ if (!pagesVisited.includes(window.location.pathname)) {
   sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
-// 📉 Scroll tracking
 let maxScrollDepth = 0;
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
@@ -47,7 +44,6 @@ function updateScrollDepth() {
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom
 let timeAtBottom = 0;
 let bottomTimer;
 function checkIfAtBottom() {
@@ -65,7 +61,6 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking
 let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
   const text = (e.target.innerText || "").trim().substring(0, 50);
@@ -75,11 +70,10 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// 📤 Session payload sender
 function sendSessionData() {
   if (hasSentLog) return;
-  updateScrollDepth();
 
+  updateScrollDepth();
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
@@ -90,6 +84,7 @@ function sendSessionData() {
   const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
   const payload = {
+    event: "session_summary",
     timestamp: new Date(sessionStart).toISOString(),
     session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
@@ -104,8 +99,6 @@ function sendSessionData() {
   };
 
   console.log("📦 Sending payload:", payload);
-  document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:15px;left:0;background:#111;color:#f90;font-size:10px;padding:5px;z-index:9999;'>📤 Payload sent</div>");
-
   const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
 
@@ -115,25 +108,6 @@ function sendSessionData() {
   }, 500);
 }
 
-// 🚪 ✅ Log session on ANY page exit
 window.addEventListener("pagehide", (e) => {
   if (!e.persisted) sendSessionData();
 });
-
-// 📱 Mobile auto-send fallback
-const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-if (isMobile) {
-  console.log("📱 Mobile device detected");
-
-  const mobileTestPayload = {
-    timestamp: new Date().toISOString(),
-    test: "mobile device ping",
-    device: navigator.userAgent
-  };
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(mobileTestPayload)], { type: "application/json" }));
-
-  setTimeout(() => {
-    console.log("⏱️ FORCED SEND on mobile");
-    sendSessionData();
-  }, 5000);
-}
