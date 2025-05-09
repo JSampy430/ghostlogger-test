@@ -14,14 +14,36 @@
       color: white;
       padding: 40px;
     }
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      background: #000;
+      padding: 20px;
+      text-align: center;
+      z-index: 10;
+    }
+    .bottom-nav {
+      padding-top: 100px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h1 class="text-center mb-4">🌀 Velocity Scroll Test</h1>
-  <p class="text-center">Scroll down slowly... then scroll fast. GhostLogger will record your scroll speed (velocity).</p>
 
-  <div class="text-center mt-5">
-    <a href="index.html" class="btn btn-outline-warning">⬅ Back to Home</a>
+  <div class="sticky-header">
+    <h1>🌀 Velocity Scroll Test</h1>
+    <p>Scroll slowly... then scroll fast. GhostLogger will measure your scroll speed (velocity).</p>
   </div>
+
+  <!-- Filler content to scroll through -->
+  <div class="container mt-5">
+    ${Array(40).fill('<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula ligula ut libero ultrices, non posuere justo lacinia.</p>').join('')}
+  </div>
+
+  <!-- ✅ Back to Home Button at Bottom -->
+  <div class="bottom-nav">
+    <a href="index.html" class="btn btn-outline-warning btn-lg mt-5">⬅ Back to Home</a>
+  </div>
+
 </body>
 </html>
