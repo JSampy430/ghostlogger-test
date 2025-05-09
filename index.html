@@ -47,17 +47,9 @@
     .section-dark {
       background: #1a1a1a;
     }
-    .section-light {
-      background: #f8f9fa;
-      color: #111;
-    }
     .feature-icon {
       font-size: 3rem;
       margin-bottom: 20px;
-    }
-    .testimonial {
-      font-style: italic;
-      opacity: 0.9;
     }
     footer {
       background: #000;
@@ -79,7 +71,7 @@
     <a href="#features" class="btn btn-warning btn-hero">Explore Features</a>
   </header>
 
-  <!-- Features Section -->
+  <!-- Features + Demo Buttons -->
   <section id="features" class="section-dark text-center">
     <div class="container">
       <h2 class="mb-5">Why Choose NovaGear?</h2>
@@ -100,48 +92,14 @@
           <p>Designed to declutter your desk and keep you focused.</p>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Product Highlight Strip -->
-  <section class="section-light text-center">
-    <div class="container">
-      <h2 class="mb-5">Gear Up for Every Mission</h2>
-      <div class="row g-4">
-        ${["Work Essentials", "Gaming Mods", "Travel Tech"].map((item, i) => `
-          <div class="col-md-4">
-            <img src="https://source.unsplash.com/500x350/?tech,gear,${i}" class="img-fluid rounded shadow-sm mb-3" alt="${item}">
-            <h5>${item}</h5>
-            <p class="small">Hand-picked picks to suit your ${item.toLowerCase()} lifestyle.</p>
-          </div>`).join('')}
+      <!-- ✅ Demo Test Buttons -->
+      <div class="mt-5 text-center">
+        <h4 class="mb-4">Test Our Tracking Features</h4>
+        <a href="velocity.html" class="btn btn-outline-warning btn-lg m-2">Velocity Scroll Demo</a>
+        <a href="depth.html" class="btn btn-outline-light btn-lg m-2">Depth Detection Demo</a>
+        <a href="session.html" class="btn btn-outline-info btn-lg m-2">Session Timer Demo</a>
       </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section-dark text-center">
-    <div class="container">
-      <h2 class="mb-5">Trusted by Creators, Developers, and Remote Warriors</h2>
-      <div class="row">
-        <div class="col-md-4">
-          <p class="testimonial">"The laptop stand fixed my posture and my productivity!" <br>– Alex W.</p>
-        </div>
-        <div class="col-md-4">
-          <p class="testimonial">"Chargers that actually last. What a concept." <br>– Tasha G.</p>
-        </div>
-        <div class="col-md-4">
-          <p class="testimonial">"This brand just gets what tech people need on their desks." <br>– Leo R.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Call to Action -->
-  <section class="section-light text-center">
-    <div class="container">
-      <h2 class="mb-4">Ready to Upgrade?</h2>
-      <p class="mb-4">Join thousands who trust NovaGear to power their setup. We ship worldwide. Fast. No BS.</p>
-      <a href="checkout.html" class="btn btn-dark btn-lg">Shop NovaGear Now</a>
     </div>
   </section>
 
