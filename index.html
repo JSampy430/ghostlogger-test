@@ -70,15 +70,45 @@
 </head>
 <body>
 
-  <!-- original content remains here -->
+  <header>
+    <div><strong>GhostLogger</strong></div>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Features</a>
+      <a href="#">FAQ</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
 
-  <!-- Updated embedded GhostLogger Script with event tagging -->
+  <section>
+    <h1>Welcome to the GhostLogger Testing Ground</h1>
+    <p>Scroll, click, and explore to generate realistic data for testing your session tracking system.</p>
+    <button onclick="window.location.href='scroll-demo.html'">🚀 Velocity Scroll Demo</button>
+    <button>Get Started</button>
+  </section>
+
+  <section>
+    <h2>About This Project</h2>
+    <p>This simulates a user journey to test GhostLogger in real-world scenarios like reading or page-hopping.</p>
+    <p>It was inspired by the need for privacy-focused analytics that still capture real engagement. Broski realized that scroll depth, time spent, and click patterns reveal a lot more than just IP addresses or cookies.</p>
+    <p>"One time, a user spent 3 minutes on a page, barely scrolled, then clicked every button — we learned more from that than from 1000 bounce rates," Broski once said.</p>
+    <p>Here you'll find those stories, tests, and results in action.</p>
+  </section>
+
+  <footer>
+    <p>© 2025 GhostLogger — Built by Broski 😎</p>
+    <button>Contact Support</button>
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to Top</button>
+  </footer>
+
+  <!-- ✅ Inline tracking script replacing external app.js -->
   <script>
+    console.log("🚀 app.js loaded and tracking initialized");
+
     fetch("https://ghostloggerv2.onrender.com/ping", {
       headers: { "X-Warm-Up": "true" }
     }).catch(() => {});
-
-    console.log("🚀 app.js loaded and tracking initialized");
 
     navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify({
       timestamp: new Date().toISOString(),
@@ -87,9 +117,7 @@
       device: navigator.userAgent
     })], { type: "application/json" }));
 
-    if (!sessionStorage.getItem("hasSentLog")) {
-      sessionStorage.setItem("hasSentLog", "false");
-    }
+    if (!sessionStorage.getItem("hasSentLog")) sessionStorage.setItem("hasSentLog", "false");
 
     let sessionStart = sessionStorage.getItem("sessionStart");
     if (!sessionStart) {
@@ -125,9 +153,7 @@
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
       const percentScrolled = (scrollTop / scrollHeight) * 100;
       if (percentScrolled > 80) {
-        if (!bottomTimer) {
-          bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
-        }
+        if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom += 1, 1000);
       } else {
         clearInterval(bottomTimer);
         bottomTimer = null;
@@ -152,7 +178,6 @@
       const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
       const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
       const finishedPage = maxScrollDepth >= 80;
-
       const scrollTop = window.scrollY;
       const scrollHeight = document.body.scrollHeight - window.innerHeight;
       const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
