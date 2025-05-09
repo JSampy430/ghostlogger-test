@@ -1,56 +1,53 @@
-// ✅ GhostLogger Tracking Script (Final Fix: Logging from Last Page)
-
-console.log("🚀 app.js loaded");
-
-// 🔥 Warm-up Render server
+// 🔥 Warm up Render server
 fetch("https://ghostloggerv2.onrender.com/ping", {
   headers: { "X-Warm-Up": "true" }
 }).catch(() => {});
 
-// ✅ Flags and state
-let hasSentLog = false;
-let isInternalNav = false;
-let maxScrollDepth = 0;
-let timeAtBottom = 0;
-let bottomTimer = null;
+console.log("🚀 app.js loaded and tracking initialized");
+document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:0;left:0;background:#000;color:#0f0;font-size:10px;padding:5px;z-index:9999;'>📲 JS loaded</div>");
 
-// ✅ Reset log flag on every page visit
+// ✅ Reset session log state and prepare tracking
 sessionStorage.setItem("hasSentLog", "false");
-hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
 
-// ✅ Use localStorage to persist session across pages
-let sessionStart;
-if (!localStorage.getItem("ghost_session_start")) {
+let sessionStart = sessionStorage.getItem("sessionStart");
+if (!sessionStart) {
   sessionStart = Date.now();
-  localStorage.setItem("ghost_session_start", sessionStart);
+  sessionStorage.setItem("sessionStart", sessionStart);
 } else {
-  sessionStart = parseInt(localStorage.getItem("ghost_session_start"));
+  sessionStart = parseInt(sessionStart);
 }
 
-// ✅ Track pages visited
-let pagesVisited = JSON.parse(localStorage.getItem("ghost_pages") || "[]");
+let hasSentLog = sessionStorage.getItem("hasSentLog") === "true";
+let pagesViewed = parseInt(sessionStorage.getItem("pagesViewed") || "0") + 1;
+sessionStorage.setItem("pagesViewed", pagesViewed.toString());
+
+let pagesVisited = JSON.parse(sessionStorage.getItem("pagesVisited") || "[]");
 if (!pagesVisited.includes(window.location.pathname)) {
   pagesVisited.push(window.location.pathname);
-  localStorage.setItem("ghost_pages", JSON.stringify(pagesVisited));
+  sessionStorage.setItem("pagesVisited", JSON.stringify(pagesVisited));
 }
 
 // 📉 Scroll tracking
+let maxScrollDepth = 0;
 function updateScrollDepth() {
   const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  if (docHeight === 0) return;
-  const percent = Math.min(100, Math.round((scrollTop / docHeight) * 100));
-  maxScrollDepth = Math.max(maxScrollDepth, percent);
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const percentScrolled = Math.min((scrollTop / scrollHeight) * 100, 100);
+  maxScrollDepth = Math.max(maxScrollDepth, Math.round(percentScrolled));
 }
 window.addEventListener("scroll", updateScrollDepth);
 
-// ⌛ Time near bottom
+// ⌛ Time near bottom tracking
+let timeAtBottom = 0;
+let bottomTimer;
 function checkIfAtBottom() {
   const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const percent = (scrollTop / docHeight) * 100;
-  if (percent > 80) {
-    if (!bottomTimer) bottomTimer = setInterval(() => timeAtBottom++, 1000);
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const percentScrolled = (scrollTop / scrollHeight) * 100;
+  if (percentScrolled > 80) {
+    if (!bottomTimer) {
+      bottomTimer = setInterval(() => { timeAtBottom += 1; }, 1000);
+    }
   } else {
     clearInterval(bottomTimer);
     bottomTimer = null;
@@ -58,56 +55,79 @@ function checkIfAtBottom() {
 }
 window.addEventListener("scroll", checkIfAtBottom);
 
-// 🖱️ Click tracking + detect internal navigation
-let clickLogs = [];
+// 🖱️ Click tracking with visible text only
+let clickLogs = JSON.parse(sessionStorage.getItem("clickLogs") || "[]");
 document.addEventListener("click", (e) => {
   const text = (e.target.innerText || "").trim().substring(0, 50);
-  if (text) clickLogs.push(text);
-
-  const link = e.target.closest("a");
-  const href = link?.getAttribute("href") || "";
-  if (href.startsWith("/") && !href.startsWith("//")) {
-    isInternalNav = true;
+  if (text) {
+    clickLogs.push(text);
+    sessionStorage.setItem("clickLogs", JSON.stringify(clickLogs));
   }
 });
 
-// 📤 Send session data
+// 📤 Send tracking data
 function sendSessionData() {
   if (hasSentLog) return;
-  hasSentLog = true;
 
-  updateScrollDepth();
+  updateScrollDepth(); // ⬅ force capture of final scroll state
+  
   const sessionEnd = Date.now();
-  const durationSec = Math.round((sessionEnd - sessionStart) / 1000);
-  const scrollVelocity = (maxScrollDepth / (durationSec || 1)).toFixed(2) + "%/s";
+  const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
+  const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
+  const finishedPage = maxScrollDepth >= 80;
+
+  const scrollTop = window.scrollY;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const currentScrollPercent = Math.min((scrollTop / scrollHeight) * 100, 100);
 
   const payload = {
-    event: "session_summary",
     timestamp: new Date(sessionStart).toISOString(),
-    session_duration: durationSec + "s",
-    page_path: window.location.pathname,
+    session_duration: sessionDuration + "s",
     pages_viewed: pagesVisited.length,
-    pages_list: pagesVisited,
-    scroll_depth: maxScrollDepth + "%",
+    page_path: window.location.pathname,
+    scroll_depth: Math.round(currentScrollPercent) + "%",
     scroll_velocity: scrollVelocity,
     time_at_bottom: timeAtBottom + "s",
-    finished_page: maxScrollDepth >= 80,
+    finished_page: finishedPage,
     click_map: clickLogs,
     device: navigator.userAgent
   };
 
   console.log("📦 Sending payload:", payload);
-  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", JSON.stringify(payload));
+  document.body.insertAdjacentHTML("beforeend", "<div style='position:fixed;bottom:15px;left:0;background:#111;color:#f90;font-size:10px;padding:5px;z-index:9999;'>📤 Payload sent</div>");
 
-  // ✅ Cleanup
-  sessionStorage.setItem("hasSentLog", "true");
-  localStorage.removeItem("ghost_session_start");
-  localStorage.removeItem("ghost_pages");
+  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", blob);
+
+  setTimeout(() => {
+    sessionStorage.setItem("hasSentLog", "true");
+    hasSentLog = true;
+  }, 500);
 }
 
-// 🚪 Only log if user is leaving site (not navigating internally)
-window.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && !isInternalNav) {
+// 🚪 Send on unload
+if (!hasSentLog) {
+  window.addEventListener("pagehide", (e) => {
+    if (!e.persisted) sendSessionData();
+  });
+}
+
+// 📱 Mobile test ping + force send after 5s
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+if (isMobile) {
+  console.log("📱 Mobile device detected");
+
+  // Test ping
+  const mobileTestPayload = {
+    timestamp: new Date().toISOString(),
+    test: "mobile device ping",
+    device: navigator.userAgent
+  };
+  navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(mobileTestPayload)], { type: "application/json" }));
+
+  // ⏱️ Force session log after 5s
+  setTimeout(() => {
+    console.log("⏱️ FORCED SEND on mobile");
     sendSessionData();
-  }
-});
+  }, 5000);
+}
