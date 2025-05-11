@@ -139,11 +139,44 @@ function triggerGhostAction() {
 
   const popup = document.createElement("div");
   popup.innerHTML = `
-    <div style="position:fixed;bottom:30px;right:20px;padding:15px;background:#fff;border:2px solid #000;color:#000;z-index:9999;font-size:14px;font-family:sans-serif;box-shadow:0 0 10px rgba(0,0,0,0.3);">
-      👻 Still thinking? Check out our top features or get help!
+    <div style="
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      max-width: 320px;
+      padding: 20px 25px;
+      background: linear-gradient(135deg, #1f1f1f, #333);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 16px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      line-height: 1.4;
+      animation: slideUp 0.3s ease-out;
+    ">
+      <strong style="font-size: 18px; display: block; margin-bottom: 8px;">👻 Still browsing?</strong>
+      We noticed you're deep in the page. Need help or want a quick summary?
+
       <br><br>
-      <button onclick="this.parentElement.remove()" style="margin-top:10px;padding:5px 10px;">Close</button>
+      <button onclick="this.parentElement.remove()" style="
+        background: #ff9900;
+        border: none;
+        padding: 10px 16px;
+        color: #000;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 10px;
+      ">No thanks</button>
     </div>
+
+    <style>
+      @keyframes slideUp {
+        from { transform: translateY(40px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    </style>
   `;
   document.body.appendChild(popup);
 }
