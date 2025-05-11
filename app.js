@@ -70,7 +70,7 @@ function sendSessionData() {
   if (hasSentLog) return;
 
   updateScrollDepth(); // ⬅ force capture of final scroll state
-  
+
   const sessionEnd = Date.now();
   const sessionDuration = Math.round((sessionEnd - sessionStart) / 1000);
   const scrollVelocity = (maxScrollDepth / (sessionDuration || 1)).toFixed(2) + "%/s";
@@ -117,7 +117,6 @@ const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 if (isMobile) {
   console.log("📱 Mobile device detected");
 
-  // Test ping
   const mobileTestPayload = {
     timestamp: new Date().toISOString(),
     test: "mobile device ping",
@@ -125,9 +124,41 @@ if (isMobile) {
   };
   navigator.sendBeacon("https://ghostloggerv2.onrender.com/log", new Blob([JSON.stringify(mobileTestPayload)], { type: "application/json" }));
 
-  // ⏱️ Force session log after 5s
   setTimeout(() => {
     console.log("⏱️ FORCED SEND on mobile");
     sendSessionData();
   }, 5000);
 }
+
+// 👻 GHOST ACTION: Trigger engagement popup after deep scroll + idle
+let ghostActionTriggered = false;
+
+function triggerGhostAction() {
+  if (ghostActionTriggered) return;
+  ghostActionTriggered = true;
+
+  const popup = document.createElement("div");
+  popup.innerHTML = `
+    <div style="position:fixed;bottom:30px;right:20px;padding:15px;background:#fff;border:2px solid #000;color:#000;z-index:9999;font-size:14px;font-family:sans-serif;box-shadow:0 0 10px rgba(0,0,0,0.3);">
+      👻 Still thinking? Check out our top features or get help!
+      <br><br>
+      <button onclick="this.parentElement.remove()" style="margin-top:10px;padding:5px 10px;">Close</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+}
+
+// 🔁 Monitor scroll & idle state for ghost trigger
+let idleTimer;
+function monitorGhostActionTrigger() {
+  updateScrollDepth();
+  if (maxScrollDepth >= 80 && clickLogs.length === 0 && !ghostActionTriggered) {
+    if (!idleTimer) {
+      idleTimer = setTimeout(triggerGhostAction, 5000); // 5s idle
+    }
+  } else {
+    clearTimeout(idleTimer);
+    idleTimer = null;
+  }
+}
+setInterval(monitorGhostActionTrigger, 1000);
